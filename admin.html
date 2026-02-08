@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin – Beacon</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='20' fill='%230EA5E9'/><circle cx='50' cy='50' r='30' fill='none' stroke='%230EA5E9' stroke-width='2' opacity='0.6'/><circle cx='50' cy='50' r='40' fill='none' stroke='%230EA5E9' stroke-width='2' opacity='0.3'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="inner-page">
+    <a href="#main" class="skip-link">Skip to main content</a>
+    <nav id="navbar" class="nav" aria-label="Main">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="20" fill="currentColor"/>
+                    <circle cx="50" cy="50" r="30" stroke="currentColor" stroke-width="2" opacity="0.6" fill="none"/>
+                    <circle cx="50" cy="50" r="40" stroke="currentColor" stroke-width="2" opacity="0.3" fill="none"/>
+                </svg>
+                Beacon
+            </a>
+            <ul class="nav-links">
+                <li><a href="features.html">Features</a></li>
+                <li><a href="pricing.html">Pricing</a></li>
+                <li><a href="docs.html">Docs</a></li>
+                <li><a href="blog.html">Blog</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="login.html">Log In</a>
+                <a href="register.html" class="btn btn-primary">Get Started Free</a>
+            </div>
+            <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <header class="page-header" id="main">
+        <div class="container">
+            <h1>Admin Panel</h1>
+            <p id="admin-subtitle">Manage documents, users, and ideas.</p>
+            <div id="admin-message" class="admin-message" role="alert" aria-live="polite" style="display: none;"></div>
+        </div>
+    </header>
+
+    <div class="page-content" id="admin-content" style="display: none;">
+        <div class="container">
+            <section class="admin-section" id="section-documents">
+                <h2>Documents</h2>
+                <form id="form-add-document" class="admin-form-inline">
+                    <label>Title <input type="text" name="title" placeholder="Document title" required /></label>
+                    <label>Description (optional) <input type="text" name="description" placeholder="Short description" /></label>
+                    <label>File <input type="file" name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,image/*" required /></label>
+                    <button type="submit" class="btn btn-primary btn-sm">Upload</button>
+                </form>
+                <div class="table-wrap">
+                    <table class="admin-table" id="table-documents">
+                        <thead>
+                            <tr><th>Title</th><th>File name</th><th>Created</th><th></th></tr>
+                        </thead>
+                        <tbody id="tbody-documents"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="admin-section" id="section-users">
+                <h2>Users</h2>
+                <table class="admin-table" id="table-users">
+                    <thead>
+                        <tr><th>Email</th><th>Name</th><th>Role</th><th>Plan</th><th>Created</th><th></th></tr>
+                    </thead>
+                    <tbody id="tbody-users"></tbody>
+                </table>
+            </section>
+
+            <section class="admin-section" id="section-ideas">
+                <h2>Ideas</h2>
+                <table class="admin-table" id="table-ideas">
+                    <thead>
+                        <tr><th>Title</th><th>Author</th><th>Status</th><th>Admin notes</th><th>Created</th><th></th></tr>
+                    </thead>
+                    <tbody id="tbody-ideas"></tbody>
+                </table>
+            </section>
+
+            <p><a href="dashboard.html" class="btn btn-outline">Back to Dashboard</a></p>
+        </div>
+    </div>
+
+    <div class="page-content" id="admin-denied" style="display: none;">
+        <div class="container container--narrow">
+            <p style="font-size: 1.125rem;">Access denied. Admin only.</p>
+            <p><a href="dashboard.html" class="btn btn-outline">Back to Dashboard</a></p>
+        </div>
+    </div>
+
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-bottom" style="padding-top: 0; border: none;">
+                <div>&copy; 2026 Beacon. All rights reserved.</div>
+            </div>
+        </div>
+    </footer>
+    <script src="auth-nav.js"></script>
+    <script src="main.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

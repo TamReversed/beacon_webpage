@@ -1,0 +1,440 @@
+const express = require('express');
+const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const rateLimit = require('express-rate-limit');
+const bcrypt = require('bcrypt');
+const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
+const multer = require('multer');
+const {
+  createUser,
+  getUserByEmail,
+  getUserById,
+  SqliteStore,
+  listUsers,
+  updateUserRolePlan,
+  listDocuments,
+  getDocumentById,
+  createDocument,
+  updateDocument,
+  deleteDocument,
+  listIdeas,
+  getIdeaById,
+  createIdea,
+  updateIdea,
+} = require('./db');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const DEFAULT_SECRET = 'change-me-in-production';
+const SESSION_SECRET = process.env.SESSION_SECRET || DEFAULT_SECRET;
+
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET === DEFAULT_SECRET) {
+    console.error('Fatal: SESSION_SECRET must be set to a strong random value in production. Use: openssl rand -hex 32');
+    process.exit(1);
+  }
+}
+
+const UPLOADS_DIR = path.join(__dirname, 'uploads', 'documents');
+try {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+} catch (e) {}
+
+const ALLOWED_MIME = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'text/plain',
+  'text/csv',
+  'image/png',
+  'image/jpeg',
+  'image/gif',
+];
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '';
+    const base = (file.originalname || 'file').replace(/[^a-zA-Z0-9.-]/g, '_').slice(0, 80) || 'file';
+    const name = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}-${base}${ext}`;
+    cb(null, name);
+  },
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: MAX_FILE_SIZE },
+  fileFilter: (req, file, cb) => {
+    if (ALLOWED_MIME.includes(file.mimetype)) return cb(null, true);
+    cb(new Error('File type not allowed. Use PDF, Word, Excel, text, CSV, or images.'));
+  },
+});
+
+function requireLogin(req, res, next) {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+  const user = getUserById(req.session.userId);
+  if (!user) {
+    req.session.destroy(() => {});
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+  req.user = user;
+  next();
+}
+
+function requireAdmin(req, res, next) {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin only' });
+  }
+  next();
+}
+
+app.set('trust proxy', 1);
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(
+  session({
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: new SqliteStore(),
+    name: 'beacon.sid',
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: 'lax',
+    },
+  })
+);
+
+// Serve static files (HTML, CSS, JS, etc.)
+app.use(express.static(__dirname, { index: false }));
+
+// SPA-style: serve index.html for root
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+// Rate limit auth endpoints (brute force / abuse)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { error: 'Too many attempts. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Auth API
+
+// POST /api/register — create account and log in
+app.post('/api/register', authLimiter, async (req, res) => {
+  try {
+    const { name, email, password } = req.body || {};
+    if (!email || !password || !name) {
+      return res.status(400).json({ error: 'Name, email, and password are required.' });
+    }
+    const trimmedEmail = String(email).trim().toLowerCase();
+    const trimmedName = String(name).trim();
+    if (trimmedName.length < 1) {
+      return res.status(400).json({ error: 'Name is required.' });
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+    }
+
+    const existing = getUserByEmail(trimmedEmail);
+    if (existing) {
+      return res.status(409).json({ error: 'An account with this email already exists.' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const userId = createUser(trimmedEmail, passwordHash, trimmedName);
+    const user = getUserById(userId);
+    req.session.userId = user.id;
+    req.session.save((err) => {
+      if (err) return res.status(500).json({ error: 'Session error.' });
+      res.status(201).json({
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role || 'user',
+          plan: user.plan || 'free',
+        },
+      });
+    });
+  } catch (err) {
+    console.error('Register error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// POST /api/login
+app.post('/api/login', authLimiter, async (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required.' });
+    }
+
+    const user = getUserByEmail(String(email).trim().toLowerCase());
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid email or password.' });
+    }
+
+    const match = await bcrypt.compare(password, user.password_hash);
+    if (!match) {
+      return res.status(401).json({ error: 'Invalid email or password.' });
+    }
+
+    req.session.userId = user.id;
+    req.session.save((err) => {
+      if (err) return res.status(500).json({ error: 'Session error.' });
+      res.json({
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role || 'user',
+          plan: user.plan || 'free',
+        },
+      });
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// POST /api/logout
+app.post('/api/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) return res.status(500).json({ error: 'Logout failed.' });
+    res.clearCookie('beacon.sid');
+    res.status(204).end();
+  });
+});
+
+// GET /api/me — current user (for nav on every page)
+app.get('/api/me', (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+  const user = getUserById(req.session.userId);
+  if (!user) {
+    req.session.destroy(() => {});
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+  res.json({
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role || 'user',
+      plan: user.plan || 'free',
+    },
+  });
+});
+
+// ——— Documents (require login; admin for write) ———
+app.get('/api/documents', requireLogin, (req, res) => {
+  try {
+    const list = listDocuments();
+    res.json({ documents: list });
+  } catch (err) {
+    console.error('List documents:', err);
+    res.status(500).json({ error: 'Failed to list documents' });
+  }
+});
+
+// Safe download path: must stay under UPLOADS_DIR
+const UPLOADS_ROOT = path.resolve(UPLOADS_DIR);
+function isPathUnder(base, candidate) {
+  const n = path.normalize(path.resolve(candidate));
+  const b = path.normalize(path.resolve(base));
+  return n === b || n.startsWith(b + path.sep);
+}
+// Safe filename for Content-Disposition: no control chars, no CRLF
+function safeDispositionFilename(name) {
+  const s = (name || 'download').replace(/[\x00-\x1f\x7f\r\n]/g, '').replace(/"/g, "'").trim() || 'download';
+  return s.slice(0, 200);
+}
+
+app.get('/api/documents/:id/download', requireLogin, (req, res) => {
+  try {
+    const doc = getDocumentById(Number(req.params.id));
+    if (!doc) return res.status(404).json({ error: 'Document not found' });
+    const rawPath = path.join(UPLOADS_DIR, doc.file_name);
+    const resolvedPath = path.resolve(rawPath);
+    if (!isPathUnder(UPLOADS_ROOT, resolvedPath)) return res.status(403).json({ error: 'Invalid document path' });
+    if (!fs.existsSync(resolvedPath)) return res.status(404).json({ error: 'File not found' });
+    const filename = safeDispositionFilename(doc.original_name || doc.file_name);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename.replace(/\\/g, '\\\\')}"`);
+    if (doc.mime_type) res.setHeader('Content-Type', doc.mime_type);
+    res.sendFile(resolvedPath);
+  } catch (err) {
+    console.error('Download document:', err);
+    res.status(500).json({ error: 'Download failed' });
+  }
+});
+
+app.post('/api/documents', requireLogin, requireAdmin, (req, res, next) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large (max 20 MB)' });
+      }
+      return res.status(400).json({ error: err.message || 'Upload failed' });
+    }
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    try {
+      const title = (req.body.title && String(req.body.title).trim()) || req.file.originalname || 'Untitled';
+      const description = (req.body.description && String(req.body.description).trim()) || null;
+      const id = createDocument(title, description, req.file.filename, req.file.originalname || req.file.filename, req.file.mimetype);
+      const doc = getDocumentById(id);
+      res.status(201).json({ document: doc });
+    } catch (e) {
+      fs.unlink(path.join(UPLOADS_DIR, req.file.filename), () => {});
+      res.status(500).json({ error: 'Failed to save document' });
+    }
+  });
+});
+
+app.patch('/api/documents/:id', requireLogin, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const doc = getDocumentById(id);
+  if (!doc) return res.status(404).json({ error: 'Document not found' });
+  const { title, description } = req.body || {};
+  const ok = updateDocument(id, {
+    title: title !== undefined ? String(title).trim() : undefined,
+    description: description !== undefined ? (description === '' ? null : String(description).trim()) : undefined,
+  });
+  if (!ok) return res.status(500).json({ error: 'Update failed' });
+  res.json({ document: getDocumentById(id) });
+});
+
+app.delete('/api/documents/:id', requireLogin, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const doc = getDocumentById(id);
+  if (!doc) return res.status(404).json({ error: 'Document not found' });
+  const rawPath = path.join(UPLOADS_DIR, doc.file_name);
+  const resolvedPath = path.resolve(rawPath);
+  if (isPathUnder(UPLOADS_ROOT, resolvedPath)) {
+    try {
+      if (fs.existsSync(resolvedPath)) fs.unlinkSync(resolvedPath);
+    } catch (e) {}
+  }
+  deleteDocument(id);
+  res.status(204).end();
+});
+
+// ——— Admin: users ———
+app.get('/api/admin/users', requireLogin, requireAdmin, (req, res) => {
+  try {
+    const users = listUsers();
+    res.json({ users });
+  } catch (err) {
+    console.error('List users:', err);
+    res.status(500).json({ error: 'Failed to list users' });
+  }
+});
+
+const ALLOWED_ROLES = ['user', 'admin'];
+const ALLOWED_PLANS = ['free', 'pro'];
+app.patch('/api/admin/users/:id', requireLogin, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const user = getUserById(id);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  const { role, plan } = req.body || {};
+  if (role !== undefined && !ALLOWED_ROLES.includes(String(role))) {
+    return res.status(400).json({ error: 'Invalid role. Use user or admin.' });
+  }
+  if (plan !== undefined && !ALLOWED_PLANS.includes(String(plan))) {
+    return res.status(400).json({ error: 'Invalid plan. Use free or pro.' });
+  }
+  const ok = updateUserRolePlan(id, role, plan);
+  if (!ok) return res.status(500).json({ error: 'Update failed' });
+  res.json({ user: getUserById(id) });
+});
+
+// ——— Ideas ———
+app.post('/api/ideas', requireLogin, (req, res) => {
+  try {
+    const { title, description } = req.body || {};
+    if (!title || !String(title).trim()) return res.status(400).json({ error: 'Title is required' });
+    const id = createIdea(req.session.userId, String(title).trim(), description ? String(description).trim() : null);
+    const idea = getIdeaById(id);
+    res.status(201).json({ idea });
+  } catch (err) {
+    console.error('Create idea:', err);
+    res.status(500).json({ error: 'Failed to submit idea' });
+  }
+});
+
+app.get('/api/ideas', requireLogin, (req, res) => {
+  try {
+    const user = getUserById(req.session.userId);
+    const adminView = user && user.role === 'admin';
+    const status = req.query.status && ['pending', 'approved', 'rejected'].includes(req.query.status) ? req.query.status : null;
+    const ideas = listIdeas({
+      userId: req.session.userId,
+      adminView,
+      status,
+    });
+    res.json({ ideas });
+  } catch (err) {
+    console.error('List ideas:', err);
+    res.status(500).json({ error: 'Failed to list ideas' });
+  }
+});
+
+const ALLOWED_IDEA_STATUSES = ['pending', 'approved', 'rejected'];
+app.patch('/api/ideas/:id', requireLogin, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const idea = getIdeaById(id);
+  if (!idea) return res.status(404).json({ error: 'Idea not found' });
+  const { status, admin_notes } = req.body || {};
+  if (status !== undefined && !ALLOWED_IDEA_STATUSES.includes(String(status))) {
+    return res.status(400).json({ error: 'Invalid status. Use pending, approved, or rejected.' });
+  }
+  const ok = updateIdea(id, {
+    status: status !== undefined ? status : undefined,
+    admin_notes: admin_notes !== undefined ? (admin_notes === '' ? null : String(admin_notes)) : undefined,
+  });
+  if (!ok) return res.status(500).json({ error: 'Update failed' });
+  res.json({ idea: getIdeaById(id) });
+});
+
+// Catch-all: serve requested file or 404 (path traversal safe)
+const APP_ROOT = path.resolve(__dirname);
+const ALLOWED_EXT = ['.html', '.css', '.js', '.ico', '.svg', '.png', '.jpg', '.json'];
+app.get('*', (req, res, next) => {
+  const ext = path.extname(req.path);
+  if (!ext || !ALLOWED_EXT.includes(ext)) return next();
+  const resolved = path.resolve(APP_ROOT, req.path.replace(/^\//, ''));
+  const normalizedResolved = path.normalize(resolved);
+  const normalizedRoot = path.normalize(APP_ROOT);
+  if (normalizedResolved !== normalizedRoot && !normalizedResolved.startsWith(normalizedRoot + path.sep)) {
+    return res.status(403).end();
+  }
+  res.sendFile(resolved, (err) => {
+    if (err && err.code === 'ENOENT') res.status(404).end();
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`Beacon server running at http://localhost:${PORT}`);
+});

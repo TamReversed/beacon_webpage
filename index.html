@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beacon – Your users deserve to know</title>
+    <meta name="description" content="Beacon is your document library: share and manage files, let your team download what they need. Simple, secure, and easy to use.">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Beacon – Your users deserve to know">
+    <meta property="og:description" content="Your document library: share and manage files, let your team download what they need. Simple and secure.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://beacon.example">
+    <meta property="og:image" content="https://beacon.example/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='20' fill='%230EA5E9'/><circle cx='50' cy='50' r='30' fill='none' stroke='%230EA5E9' stroke-width='2' opacity='0.6'/><circle cx='50' cy='50' r='40' fill='none' stroke='%230EA5E9' stroke-width='2' opacity='0.3'/></svg>">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap" as="style">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <a href="#main" class="skip-link">Skip to main content</a>
+    <!-- Navigation -->
+    <nav id="navbar" class="nav" aria-label="Main">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="20" fill="currentColor"/>
+                    <circle cx="50" cy="50" r="30" stroke="currentColor" stroke-width="2" opacity="0.6" fill="none"/>
+                    <circle cx="50" cy="50" r="40" stroke="currentColor" stroke-width="2" opacity="0.3" fill="none"/>
+                </svg>
+                Beacon
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="features.html">Features</a></li>
+                <li><a href="pricing.html">Pricing</a></li>
+                <li><a href="docs.html">Docs</a></li>
+                <li><a href="blog.html">Blog</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="login.html">Log In</a>
+                <a href="register.html" class="btn btn-primary">Get Started Free</a>
+            </div>
+
+            <button class="hamburger" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <main id="main">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-bg" aria-hidden="true">
+                <div class="hero-mesh" id="hero-mesh"></div>
+                <div class="hero-grid" id="hero-grid"></div>
+                <div class="hero-orb hero-orb--1" data-speed="0.15"></div>
+                <div class="hero-orb hero-orb--2" data-speed="0.25"></div>
+                <div class="hero-orb hero-orb--3" data-speed="0.35"></div>
+                <div class="hero-orb hero-orb--4" data-speed="0.08"></div>
+                <div class="hero-orb hero-orb--5" data-speed="0.2"></div>
+            </div>
+            <div class="container">
+                <div class="hero-content">
+                    <span class="eyebrow">Trusted by 500+ engineering teams</span>
+                    <h1>Your users deserve to know.</h1>
+                    <p class="hero-subtitle">
+                        Beacon is your document library: share and manage files, let your team download what they need. Simple, secure, and easy to use.
+                    </p>
+
+                    <div class="hero-cta">
+                        <div class="cta-buttons">
+                            <a href="register.html" class="btn btn-primary btn-large">Start Free →</a>
+                            <a href="#demo" class="secondary-cta">See a live demo →</a>
+                        </div>
+                        <p class="hero-subtext">No credit card required · Free forever for small teams</p>
+                    </div>
+
+                    <div class="hero-visual">
+                        <div class="status-mockup">
+                            <div class="status-header">
+                                <div class="status-indicator">
+                                    <span class="status-dot"></span>
+                                    All Systems Operational
+                                </div>
+                                <p class="status-header-note">Last updated: Just now</p>
+                            </div>
+                            <div class="status-body">
+                                <div class="component-group">
+                                    <h4>Core Services</h4>
+                                    <div class="component">
+                                        <span class="component-name">API Gateway</span>
+                                        <span class="component-status operational">
+                                            <span class="status-dot-small"></span>
+                                            Operational
+                                        </span>
+                                    </div>
+                                    <div class="component">
+                                        <span class="component-name">Authentication</span>
+                                        <span class="component-status operational">
+                                            <span class="status-dot-small"></span>
+                                            Operational
+                                        </span>
+                                    </div>
+                                    <div class="component">
+                                        <span class="component-name">Database</span>
+                                        <span class="component-status operational">
+                                            <span class="status-dot-small"></span>
+                                            Operational
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="component-group">
+                                    <h4>Platform Features</h4>
+                                    <div class="component">
+                                        <span class="component-name">Real-time Updates</span>
+                                        <span class="component-status operational">
+                                            <span class="status-dot-small"></span>
+                                            Operational
+                                        </span>
+                                    </div>
+                                    <div class="component">
+                                        <span class="component-name">File Storage</span>
+                                        <span class="component-status operational">
+                                            <span class="status-dot-small"></span>
+                                            Operational
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="uptime-section">
+                                    <h4>90-Day Uptime</h4>
+                                    <div class="uptime-bars" id="hero-uptime" role="img" aria-label="90-day uptime history showing 99% uptime"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Social Proof Bar -->
+        <section class="social-proof">
+            <div class="social-proof-label">Trusted by teams at</div>
+            <div class="logo-marquee" aria-hidden="true">
+                <div class="logo-track">
+                    <div class="company-logo">Nextra</div>
+                    <div class="company-logo">Arclight</div>
+                    <div class="company-logo">Voltera</div>
+                    <div class="company-logo">Streamline</div>
+                    <div class="company-logo">Pylon</div>
+                    <div class="company-logo">Cubist</div>
+                </div>
+                <div class="logo-track">
+                    <div class="company-logo">Nextra</div>
+                    <div class="company-logo">Arclight</div>
+                    <div class="company-logo">Voltera</div>
+                    <div class="company-logo">Streamline</div>
+                    <div class="company-logo">Pylon</div>
+                    <div class="company-logo">Cubist</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Problem Section -->
+        <section class="problem-section">
+            <div class="parallax-depth-layer parallax-depth-layer--1" aria-hidden="true"></div>
+            <div class="parallax-depth-layer parallax-depth-layer--2" aria-hidden="true"></div>
+            <div class="container">
+                <div class="problem-content animate-on-scroll">
+                    <h2>Your support inbox shouldn't be your status page.</h2>
+                    <p>
+                        When your service goes down, customers flood support with "is it just me?" tickets. Your team is firefighting the outage AND managing communication. It's chaos.
+                    </p>
+                    <p>
+                        Every minute without communication erodes trust that took months to build. Your users deserve better. Your team deserves better.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section" id="features">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="animate-on-scroll">Everything you need. Nothing you don't.</h2>
+                </div>
+
+                <div class="bento-grid">
+                    <div class="feature-card large animate-on-scroll">
+                        <div class="feature-icon">📝</div>
+                        <h3>Incident Timelines</h3>
+                        <p>Keep users in the loop from "Investigating" through "Resolved." Every update timestamped, every status change tracked.</p>
+                        <div class="feature-visual">
+                            <div class="incident-timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-status">Resolved</div>
+                                        <div class="timeline-time">14:32 UTC</div>
+                                        <div class="timeline-message">All services restored. Monitoring continues.</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-status">Monitoring</div>
+                                        <div class="timeline-time">14:15 UTC</div>
+                                        <div class="timeline-message">Fix deployed. Watching for stability.</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-status">Investigating</div>
+                                        <div class="timeline-time">13:47 UTC</div>
+                                        <div class="timeline-message">API latency spike detected. Team investigating.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">📧</div>
+                        <h3>Real-Time Notifications</h3>
+                        <p>Email subscribers instantly when incidents are created or resolved. Digest batching for updates in between — no inbox flooding.</p>
+                    </div>
+
+                    <div class="feature-card large animate-on-scroll">
+                        <div class="feature-icon">📊</div>
+                        <h3>Uptime History</h3>
+                        <p>Beautiful 90-day uptime bars show your track record at a glance. Green means trust.</p>
+                        <div class="feature-visual">
+                            <div class="mini-uptime-bars">
+                                <div class="mini-uptime-bar" style="height: 100%; background: #10B981;"></div>
+                                <div class="mini-uptime-bar" style="height: 100%; background: #10B981;"></div>
+                                <div class="mini-uptime-bar" style="height: 100%; background: #10B981;"></div>
+                                <div class="mini-uptime-bar" style="height: 95%; background: #F59E0B;"></div>
+                                <div class="mini-uptime-bar" style="height: 100%; background: #10B981;"></div>
+                                <div class="mini-uptime-bar" style="height: 100%; background: #10B981;"></div>
+                                <div class="mini-uptime-bar" style="height: 100%; background: #10B981;"></div>
+                                <div class="mini-uptime-bar" style="height: 100%; background: #10B981;"></div>
+                                <div class="mini-uptime-bar" style="height: 100%; background: #10B981;"></div>
+                                <div class="mini-uptime-bar" style="height: 100%; background: #10B981;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">🔧</div>
+                        <h3>Scheduled Maintenance</h3>
+                        <p>Give your users advance notice. Maintenance windows auto-start and auto-complete on schedule.</p>
+                    </div>
+
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">⚡</div>
+                        <h3>REST API</h3>
+                        <p>Update your status page from your CI/CD pipeline, monitoring tools, or custom scripts. Full CRUD on incidents and components.</p>
+                    </div>
+
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">🎨</div>
+                        <h3>Custom Branding</h3>
+                        <p>Your logo, your colors, your domain. It looks like yours because it is.</p>
+                    </div>
+
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">📁</div>
+                        <h3>Component Groups</h3>
+                        <p>Organize services into logical groups. Your users see what matters to them.</p>
+                    </div>
+
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">👥</div>
+                        <h3>Subscriber Management</h3>
+                        <p>Double opt-in, one-click unsubscribe, component-specific subscriptions. CAN-SPAM compliant out of the box.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Demo Section -->
+        <section class="demo-section" id="demo">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="animate-on-scroll">See it in action</h2>
+                    <p class="animate-on-scroll">Click components to toggle their status and watch the page update in real-time</p>
+                </div>
+
+                <div class="demo-container animate-on-scroll">
+                    <div class="interactive-status">
+                        <div class="interactive-header" id="demo-header">
+                            <div class="status-indicator">
+                                <span class="status-dot" id="demo-main-dot"></span>
+                                <span id="demo-status-text">All Systems Operational</span>
+                            </div>
+                        </div>
+                        <div class="interactive-body">
+                            <div class="component-group">
+                                <h4>Try clicking these components</h4>
+                                <div class="interactive-component" data-component="api" tabindex="0" role="button" aria-label="Toggle API Gateway status">
+                                    <span class="component-name">API Gateway</span>
+                                    <span class="component-status operational">
+                                        <span class="status-dot-small"></span>
+                                        Operational
+                                    </span>
+                                </div>
+                                <div class="interactive-component" data-component="auth" tabindex="0" role="button" aria-label="Toggle Authentication status">
+                                    <span class="component-name">Authentication</span>
+                                    <span class="component-status operational">
+                                        <span class="status-dot-small"></span>
+                                        Operational
+                                    </span>
+                                </div>
+                                <div class="interactive-component" data-component="db" tabindex="0" role="button" aria-label="Toggle Database status">
+                                    <span class="component-name">Database</span>
+                                    <span class="component-status operational">
+                                        <span class="status-dot-small"></span>
+                                        Operational
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="demo-description">
+                        This is what your users see. Clean, fast, trustworthy.
+                    </p>
+
+                    <div class="demo-cta">
+                        <a href="register.html" class="btn btn-primary btn-large">Get Started Free →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="pricing-section" id="pricing">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="animate-on-scroll">Simple pricing. No surprises.</h2>
+                    <p class="animate-on-scroll">Start free. Upgrade when you're ready.</p>
+                </div>
+
+                <div class="pricing-grid">
+                    <div class="pricing-card animate-on-scroll">
+                        <div class="pricing-name">Free</div>
+                        <div class="pricing-price">$0<span class="pricing-period">/mo</span></div>
+                        <ul class="pricing-features">
+                            <li>1 status page</li>
+                            <li>5 components</li>
+                            <li>25 email subscribers</li>
+                            <li>30-day incident history</li>
+                            <li>30-day uptime bars</li>
+                            <li>Community support</li>
+                        </ul>
+                        <a href="register.html" class="btn btn-outline" style="width: 100%;">Get Started</a>
+                    </div>
+
+                    <div class="pricing-card featured animate-on-scroll">
+                        <div class="pricing-badge">Most Popular</div>
+                        <div class="pricing-name">Starter</div>
+                        <div class="pricing-price">$9<span class="pricing-period">/mo</span></div>
+                        <ul class="pricing-features">
+                            <li>Everything in Free, plus:</li>
+                            <li>15 components</li>
+                            <li>250 subscribers</li>
+                            <li>3 team members</li>
+                            <li>90-day history + uptime bars</li>
+                            <li>Full API access</li>
+                            <li>Email support</li>
+                        </ul>
+                        <a href="register.html" class="btn btn-primary" style="width: 100%;">Start Free Trial</a>
+                    </div>
+
+                    <div class="pricing-card animate-on-scroll">
+                        <div class="pricing-name">Pro</div>
+                        <div class="pricing-price">$29<span class="pricing-period">/mo</span></div>
+                        <ul class="pricing-features">
+                            <li>Everything in Starter, plus:</li>
+                            <li>5 status pages</li>
+                            <li>Unlimited components</li>
+                            <li>2,500 subscribers</li>
+                            <li>10 team members</li>
+                            <li>365-day history + uptime bars</li>
+                            <li>Custom domain</li>
+                            <li>Remove branding</li>
+                            <li>Audit log</li>
+                            <li>Priority support</li>
+                        </ul>
+                        <a href="register.html" class="btn btn-primary" style="width: 100%;">Start Free Trial</a>
+                    </div>
+                </div>
+
+                <p class="pricing-subtext animate-on-scroll">
+                    All plans include a 14-day free trial. No credit card required.
+                </p>
+
+                <div class="faq-section">
+                    <div class="faq-item animate-on-scroll">
+                        <button class="faq-question" aria-expanded="false">
+                            Can I change plans later?
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we'll prorate any charges or credits.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item animate-on-scroll">
+                        <button class="faq-question" aria-expanded="false">
+                            What happens when I hit my subscriber limit?
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                We'll never block new subscribers. Instead, we'll send you a friendly notification suggesting an upgrade. You have full control over when to upgrade.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item animate-on-scroll">
+                        <button class="faq-question" aria-expanded="false">
+                            Do you offer annual billing?
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                Yes! Annual billing is available for Starter and Pro plans with a 20% discount. Switch to annual billing from your account settings.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item animate-on-scroll">
+                        <button class="faq-question" aria-expanded="false">
+                            Can I use my own domain?
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                Custom domains are available on the Pro plan. Simply add a CNAME record pointing to your Beacon status page, and we'll handle the rest.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item animate-on-scroll">
+                        <button class="faq-question" aria-expanded="false">
+                            How is this different from Atlassian Statuspage?
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                Beacon offers the same core features at a fraction of the cost. We're faster to set up (under 2 minutes), more affordable ($9-29/mo vs $29-399/mo), and built for modern teams who want simplicity without sacrificing power.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="animate-on-scroll">Teams ship with confidence</h2>
+                </div>
+
+                <div class="testimonials-grid">
+                    <div class="testimonial-card animate-on-scroll">
+                        <div class="quote-mark" aria-hidden="true">"</div>
+                        <p class="testimonial-text">
+                            Beacon cut our support tickets during outages by 80%. Our users know what's happening before they even think to reach out. It's been a game-changer.
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="author-name">Sarah Chen</div>
+                            <div class="author-title">VP Engineering, Streamline</div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card animate-on-scroll">
+                        <div class="quote-mark" aria-hidden="true">"</div>
+                        <p class="testimonial-text">
+                            We launched our status page in literally 90 seconds. The API integration with our monitoring was seamless. This is how developer tools should work.
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="author-name">Marcus Rodriguez</div>
+                            <div class="author-title">CTO, Arclight</div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card animate-on-scroll">
+                        <div class="quote-mark" aria-hidden="true">"</div>
+                        <p class="testimonial-text">
+                            Our customers love the transparency. When issues happen, they see we're on it immediately. It's turned outages from trust-breakers into trust-builders.
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="author-name">Emily Nakamura</div>
+                            <div class="author-title">Head of Customer Success, Voltera</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA Section -->
+        <section class="final-cta">
+            <div class="final-cta-bg" aria-hidden="true">
+                <div class="final-cta-orb final-cta-orb--1" data-speed="0.2"></div>
+                <div class="final-cta-orb final-cta-orb--2" data-speed="0.35"></div>
+                <div class="final-cta-orb final-cta-orb--3" data-speed="0.15"></div>
+            </div>
+            <div class="container">
+                <div class="final-cta-content">
+                    <h2 class="animate-on-scroll">Stop leaving your users in the dark.</h2>
+                    <p class="animate-on-scroll">Launch your status page in under 2 minutes. Free forever for small teams.</p>
+                    <a href="register.html" class="btn btn-primary btn-large animate-on-scroll">Get Started Free →</a>
+                    <p class="final-cta-subtext animate-on-scroll">No credit card · No setup fee · Cancel anytime</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h4>Product</h4>
+                    <ul class="footer-links">
+                        <li><a href="features.html">Features</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                        <li><a href="docs.html">Docs</a></li>
+                        <li><a href="api.html">API Reference</a></li>
+                        <li><a href="changelog.html">Changelog</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                        <li><a href="sla.html">SLA</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Status</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://status.beacon.example">Beacon Status Page</a></li>
+                        <li class="footer-note">We eat our own dogfood</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div>&copy; 2026 Beacon. All rights reserved.</div>
+                <div class="social-links">
+                    <a href="https://twitter.com/beacon" aria-label="Twitter">𝕏</a>
+                    <a href="https://github.com/beacon" aria-label="GitHub">
+                        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                        </svg>
+                    </a>
+                    <a href="https://linkedin.com/company/beacon" aria-label="LinkedIn">in</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="auth-nav.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
