@@ -33,7 +33,9 @@ const SESSION_SECRET = process.env.SESSION_SECRET || DEFAULT_SECRET;
 
 if (process.env.NODE_ENV === 'production') {
   if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET === DEFAULT_SECRET) {
-    console.error('Fatal: SESSION_SECRET must be set to a strong random value in production. Use: openssl rand -hex 32');
+    console.error('Fatal: SESSION_SECRET must be set to a strong random value in production.');
+    console.error('Generate one with: openssl rand -hex 32');
+    console.error('Then set it in your host (e.g. Railway: Variables tab, or VPS .env/systemd).');
     process.exit(1);
   }
 }

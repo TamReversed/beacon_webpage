@@ -136,12 +136,27 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Touch & iOS: avoid zoom on focus, tap highlight, touch targets */
+input,
+textarea,
+select {
+  font-size: max(16px, 1rem);
+}
+@media (max-width: 768px) {
+  a,
+  button {
+    -webkit-tap-highlight-color: rgba(20, 184, 166, 0.2);
+    tap-highlight-color: rgba(20, 184, 166, 0.2);
+  }
+}
+
 .skip-link {
   position: absolute;
-  top: 0;
+  top: env(safe-area-inset-top, 0);
   left: 0;
   z-index: 10000;
   padding: 0.75rem 1.25rem;
+  padding-left: max(1.25rem, env(safe-area-inset-left, 0));
   background: var(--color-accent);
   color: var(--color-white);
   font-weight: 600;
@@ -188,6 +203,9 @@ h6 { font-size: var(--text-lg); font-weight: 600; }
    -------------------------------------------------------------------------- */
 .btn {
   display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
   align-items: center;
   justify-content: center;
   min-height: 44px;
@@ -467,8 +485,8 @@ h6 { font-size: var(--text-lg); font-weight: 600; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
+  padding-top: max(1.25rem, env(safe-area-inset-top, 0));
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0));
 }
 
 .logo {
@@ -1520,7 +1538,7 @@ h6 { font-size: var(--text-lg); font-weight: 600; }
    -------------------------------------------------------------------------- */
 .footer {
   background: var(--color-dark);
-  padding: 4rem 0 2rem;
+  padding: 4rem 0 calc(2rem + env(safe-area-inset-bottom, 0));
   color: var(--color-on-dark-muted);
 }
 
@@ -1606,13 +1624,82 @@ h6 { font-size: var(--text-lg); font-weight: 600; }
 /* --------------------------------------------------------------------------
    Responsive
    -------------------------------------------------------------------------- */
+/* Mobile nav drawer backdrop (injected by JS) */
+.nav-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9997;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+body.nav-open .nav-backdrop {
+  opacity: 1;
+  visibility: visible;
+}
+body.nav-open {
+  overflow: hidden;
+}
+
 @media (max-width: 768px) {
-  .nav-links {
-    display: none;
+  /* Drawer panel: fixed overlay, slide in from right */
+  .nav-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: min(320px, 85vw);
+    height: 100%;
+    height: 100dvh;
+    padding: calc(1.25rem + env(safe-area-inset-top, 0)) 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0));
+    background: var(--color-dark);
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
+    z-index: 9998;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    transform: translateX(100%);
+    transition: transform 0.3s var(--ease-out-expo);
+    visibility: hidden;
+    overflow-y: auto;
+  }
+  body.nav-open .nav-panel {
+    transform: translateX(0);
+    visibility: visible;
+  }
+  .nav-panel .nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-panel .nav-links a {
+    display: block;
+    padding: 0.75rem 0;
+    font-size: 1rem;
+  }
+  .nav-panel .nav-actions {
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: auto;
+    gap: 0.75rem;
+  }
+  .nav-panel .nav-actions a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0.75rem 1rem;
   }
 
   .hamburger {
     display: flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
   }
 
   .hero {

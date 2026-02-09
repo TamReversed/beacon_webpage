@@ -2,6 +2,9 @@
 
 The site runs as a Node.js app with **real logins**: registration, login, session cookies, and a protected dashboard.
 
+**If the container crashes with:** `Fatal: SESSION_SECRET must be set to a strong random value in production`  
+→ Add the env var in your platform (e.g. Railway: **Variables** tab): `SESSION_SECRET` = output of `openssl rand -hex 32`, then redeploy.
+
 ## Run locally
 
 ```bash
@@ -25,10 +28,10 @@ Open **http://localhost:3000** in your browser (do not open the HTML files direc
 1. Push the repo to GitHub (or connect another source).
 2. In [Railway](https://railway.app), **New Project** → **Deploy from GitHub** and select the repo.
 3. Railway will detect Node and run `npm start` (from `package.json`).
-4. In the project **Variables** tab, add:
-   - `SESSION_SECRET` = output of `openssl rand -hex 32`
-   - `NODE_ENV` = `production`
-5. Deploy. The SQLite file will live in the container filesystem. For persistence across deploys, add a **Volume** and set `DATABASE_PATH` to a path inside that volume (e.g. `/data/beacon.db`), or use Railway Postgres and swap the app to use Postgres instead of SQLite (code change).
+4. **Before the first deploy (or to fix crashes):** open your service → **Variables** tab and add:
+   - `SESSION_SECRET` = run `openssl rand -hex 32` locally and paste the result (required in production).
+   - `NODE_ENV` = `production` (optional; Railway often sets this automatically).
+5. Trigger a redeploy so the new variables are picked up. The SQLite file will live in the container filesystem. For persistence across deploys, add a **Volume** and set `DATABASE_PATH` to a path inside that volume (e.g. `/data/beacon.db`), or use Railway Postgres and swap the app to use Postgres instead of SQLite (code change).
 
 ## Deploy on a VPS (Ubuntu/Debian)
 

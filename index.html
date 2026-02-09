@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Beacon – Your users deserve to know</title>
     <meta name="description" content="Beacon is your document library: share and manage files, let your team download what they need. Simple, secure, and easy to use.">
 
@@ -37,19 +37,21 @@
                 Beacon
             </a>
 
-            <ul class="nav-links">
-                <li><a href="features.html">Features</a></li>
-                <li><a href="pricing.html">Pricing</a></li>
-                <li><a href="docs.html">Docs</a></li>
-                <li><a href="blog.html">Blog</a></li>
-            </ul>
+            <div class="nav-panel" id="nav-panel" role="dialog" aria-label="Navigation">
+                <ul class="nav-links">
+                    <li><a href="features.html">Features</a></li>
+                    <li><a href="pricing.html">Pricing</a></li>
+                    <li><a href="docs.html">Docs</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                </ul>
 
-            <div class="nav-actions">
-                <a href="login.html">Log In</a>
-                <a href="register.html" class="btn btn-primary">Get Started Free</a>
+                <div class="nav-actions">
+                    <a href="login.html">Log In</a>
+                    <a href="register.html" class="btn btn-primary">Get Started Free</a>
+                </div>
             </div>
 
-            <button class="hamburger" aria-label="Menu">
+            <button class="hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-panel">
                 <span></span>
                 <span></span>
                 <span></span>

@@ -21,6 +21,42 @@
     onScroll(); // set initial state
   }
 
+  // --- Mobile nav drawer (hamburger open/close, scroll lock, backdrop) ---
+  (function () {
+    var hamburger = document.querySelector('.nav .hamburger');
+    var panel = document.getElementById('nav-panel');
+    if (!hamburger || !panel) return;
+
+    function isOpen() { return document.body.classList.contains('nav-open'); }
+    function close() {
+      document.body.classList.remove('nav-open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      hamburger.setAttribute('aria-label', 'Open menu');
+      var backdrop = document.querySelector('.nav-backdrop');
+      if (backdrop) backdrop.remove();
+    }
+    function open() {
+      document.body.classList.add('nav-open');
+      hamburger.setAttribute('aria-expanded', 'true');
+      hamburger.setAttribute('aria-label', 'Close menu');
+      var backdrop = document.createElement('div');
+      backdrop.className = 'nav-backdrop';
+      backdrop.setAttribute('aria-hidden', 'true');
+      backdrop.addEventListener('click', close);
+      document.body.appendChild(backdrop);
+    }
+
+    hamburger.addEventListener('click', function () {
+      if (isOpen()) close(); else open();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && isOpen()) close();
+    });
+    panel.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', close);
+    });
+  })();
+
   // --- Scroll-driven background animations (hero mesh/grid/orbs, final CTA orbs) + content parallax ---
   (function () {
     var heroMesh = document.getElementById('hero-mesh');

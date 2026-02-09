@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>API Reference – Beacon</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='20' fill='%230EA5E9'/><circle cx='50' cy='50' r='30' fill='none' stroke='%230EA5E9' stroke-width='2' opacity='0.6'/><circle cx='50' cy='50' r='40' fill='none' stroke='%230EA5E9' stroke-width='2' opacity='0.3'/></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,17 +22,19 @@
                 </svg>
                 Beacon
             </a>
-            <ul class="nav-links">
-                <li><a href="features.html">Features</a></li>
-                <li><a href="pricing.html">Pricing</a></li>
-                <li><a href="docs.html">Docs</a></li>
-                <li><a href="blog.html">Blog</a></li>
-            </ul>
-            <div class="nav-actions">
-                <a href="login.html">Log In</a>
-                <a href="register.html" class="btn btn-primary">Get Started Free</a>
+            <div class="nav-panel" id="nav-panel" role="dialog" aria-label="Navigation">
+                <ul class="nav-links">
+                    <li><a href="features.html">Features</a></li>
+                    <li><a href="pricing.html">Pricing</a></li>
+                    <li><a href="docs.html">Docs</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <a href="login.html">Log In</a>
+                    <a href="register.html" class="btn btn-primary">Get Started Free</a>
+                </div>
             </div>
-            <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+            <button class="hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-panel"><span></span><span></span><span></span></button>
         </div>
     </nav>
 
