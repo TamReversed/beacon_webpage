@@ -5,7 +5,8 @@
       "Bash(ls:*)",
       "Bash(git add:*)",
       "Bash(git restore:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(__NEW_LINE__ echo \"=== Summary of Footer Link Management Feature ===\")"
     ]
   }
 }
