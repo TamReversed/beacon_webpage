@@ -159,6 +159,66 @@
     updateScrollBg();
   })();
 
+  // --- Page-header parallax (blog, library, blog post) ---
+  (function () {
+    var pageHeaderMesh = document.getElementById('page-header-mesh');
+    var pageHeaderGrid = document.getElementById('page-header-grid');
+    var pageHeaderOrbs = document.querySelectorAll('.page-header-orb');
+    var pageHeader = document.querySelector('.page-header--hero');
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!pageHeaderMesh || !pageHeader) return;
+
+    function getPageHeaderProgress() {
+      if (!pageHeader) return 0;
+      var rect = pageHeader.getBoundingClientRect();
+      var h = window.innerHeight;
+      if (rect.top >= h) return 0;
+      if (rect.bottom <= 0) return 1;
+      return Math.max(0, 1 - rect.bottom / (rect.height + h * 0.2));
+    }
+
+    function updatePageHeaderBg() {
+      var y = window.scrollY;
+      var progress = getPageHeaderProgress();
+      if (reduceMotion) return;
+
+      var meshMoveY = -y * 0.28;
+      var meshScale = 1 + progress * 0.12;
+      var meshOpacity = Math.max(0.06, 1 - progress * 0.9);
+      pageHeaderMesh.style.transform = 'translate(-50%, calc(-50% + ' + meshMoveY + 'px)) scale(' + meshScale + ')';
+      pageHeaderMesh.style.opacity = meshOpacity;
+
+      if (pageHeaderGrid) {
+        var gridMoveY = -y * 0.45;
+        var gridSkew = Math.sin(progress * Math.PI) * 1.2;
+        var gridOpacity = Math.max(0.02, 0.85 - progress * 0.88);
+        pageHeaderGrid.style.transform = 'translateY(' + gridMoveY + 'px) skewY(' + gridSkew + 'deg)';
+        pageHeaderGrid.style.opacity = gridOpacity;
+      }
+
+      pageHeaderOrbs.forEach(function (orb, i) {
+        var speed = [0.12, 0.2, 0.28][i] || 0.2;
+        var moveY = -y * speed * 0.7;
+        var scale = 1 - progress * 0.4;
+        var opacity = Math.max(0.04, 0.6 - progress * 0.55);
+        orb.style.transform = 'translateY(' + moveY + 'px) scale(' + scale + ')';
+        orb.style.opacity = opacity;
+      });
+    }
+
+    var ticking = false;
+    window.addEventListener('scroll', function () {
+      if (!ticking) {
+        requestAnimationFrame(function () {
+          updatePageHeaderBg();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+    updatePageHeaderBg();
+  })();
+
   // --- Scroll-triggered animations (Intersection Observer) with stagger ---
   const observerOptions = {
     threshold: 0.1,
