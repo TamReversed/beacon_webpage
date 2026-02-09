@@ -523,7 +523,7 @@
       });
   }
 
-  var ADMIN_PANELS = ['section-documents', 'section-users', 'section-ideas', 'section-companies', 'section-testimonials', 'section-docs-cms', 'section-blog-cms'];
+  var ADMIN_PANELS = ['section-documents', 'section-users', 'section-ideas', 'section-companies', 'section-testimonials', 'section-docs-cms', 'section-blog-cms', 'section-footer'];
 
   function getActivePanelId() {
     var hash = (window.location.hash || '').replace(/^#/, '');
