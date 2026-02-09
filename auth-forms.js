@@ -46,7 +46,7 @@
         .then(function (res) {
           return res.json().then(function (data) {
             if (res.ok) {
-              window.location.href = 'dashboard.html';
+              window.location.href = '/dashboard';
             } else {
               showError(loginForm, data.error || 'Login failed.');
               btn.disabled = false;
@@ -86,7 +86,7 @@
         .then(function (res) {
           return res.json().then(function (data) {
             if (res.ok) {
-              window.location.href = 'dashboard.html';
+              window.location.href = '/dashboard';
             } else {
               showError(registerForm, data.error || 'Registration failed.');
               btn.disabled = false;

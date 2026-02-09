@@ -35,12 +35,12 @@
     navActions.textContent = '';
 
     var library = document.createElement('a');
-    library.href = 'library.html';
+    library.href = '/library';
     library.textContent = 'Library';
     navActions.appendChild(library);
 
     var dash = document.createElement('a');
-    dash.href = 'dashboard.html';
+    dash.href = '/dashboard';
     dash.textContent = 'Dashboard';
     navActions.appendChild(dash);
 
@@ -71,7 +71,7 @@
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
       }).then(function () {
-        window.location.href = 'index.html';
+        window.location.href = '/';
       }).catch(function () {
         logoutBtn.disabled = false;
       });

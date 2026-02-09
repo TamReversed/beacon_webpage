@@ -425,7 +425,29 @@ const APP_ROOT = path.resolve(__dirname);
 const ALLOWED_EXT = ['.html', '.css', '.js', '.ico', '.svg', '.png', '.jpg', '.json'];
 app.get('*', (req, res, next) => {
   const ext = path.extname(req.path);
-  if (!ext || !ALLOWED_EXT.includes(ext)) return next();
+
+  // If no extension, try to serve as .html file (e.g., /features -> features.html)
+  if (!ext) {
+    const htmlPath = path.resolve(APP_ROOT, req.path.replace(/^\//, '') + '.html');
+    const normalizedHtmlPath = path.normalize(htmlPath);
+    const normalizedRoot = path.normalize(APP_ROOT);
+
+    // Path traversal check
+    if (normalizedHtmlPath === normalizedRoot || !normalizedHtmlPath.startsWith(normalizedRoot + path.sep)) {
+      return res.status(404).end();
+    }
+
+    // Try serving the .html file
+    if (fs.existsSync(htmlPath)) {
+      return res.sendFile(htmlPath);
+    }
+    return res.status(404).end();
+  }
+
+  // If has extension but not allowed, skip
+  if (!ALLOWED_EXT.includes(ext)) return next();
+
+  // Serve file with allowed extension
   const resolved = path.resolve(APP_ROOT, req.path.replace(/^\//, ''));
   const normalizedResolved = path.normalize(resolved);
   const normalizedRoot = path.normalize(APP_ROOT);
