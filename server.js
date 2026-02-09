@@ -47,7 +47,15 @@ const {
   updateBlogPost,
   deleteBlogPost,
 } = require('./db');
-const { marked } = require('marked');
+
+let markedParse = null;
+function getMarked() {
+  if (markedParse) return Promise.resolve(markedParse);
+  return import('marked').then((m) => {
+    markedParse = m.marked.parse;
+    return markedParse;
+  });
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -697,29 +705,43 @@ function escapeHtml(s) {
 app.get('/docs/:slug', (req, res) => {
   const doc = getDocBySlug(req.params.slug);
   if (!doc) return res.status(404).end();
-  const bodyHtml = marked.parse(doc.body || '', { async: false });
   const templatePath = path.join(__dirname, 'views', 'doc-show.html');
   if (!fs.existsSync(templatePath)) return res.status(500).send('Template not found');
-  let html = fs.readFileSync(templatePath, 'utf8');
-  html = html.replace(/\{\{TITLE\}\}/g, escapeHtml(doc.title));
-  html = html.replace(/\{\{BODY\}\}/, bodyHtml);
-  html = html.replace(/\{\{META_TITLE\}\}/g, escapeHtml(doc.title) + ' – Documentation – ArgusPage');
-  res.type('html').send(html);
+  getMarked()
+    .then((parse) => parse(doc.body || '', { async: false }))
+    .then((bodyHtml) => {
+      let html = fs.readFileSync(templatePath, 'utf8');
+      html = html.replace(/\{\{TITLE\}\}/g, escapeHtml(doc.title));
+      html = html.replace(/\{\{BODY\}\}/, bodyHtml);
+      html = html.replace(/\{\{META_TITLE\}\}/g, escapeHtml(doc.title) + ' – Documentation – ArgusPage');
+      res.type('html').send(html);
+    })
+    .catch((err) => {
+      console.error('Markdown parse (doc):', err);
+      res.status(500).send('Error rendering doc');
+    });
 });
 
 app.get('/blog/:slug', (req, res) => {
   const post = getBlogPostBySlug(req.params.slug);
   if (!post) return res.status(404).end();
-  const bodyHtml = marked.parse(post.body || '', { async: false });
   const templatePath = path.join(__dirname, 'views', 'blog-show.html');
   if (!fs.existsSync(templatePath)) return res.status(500).send('Template not found');
-  let html = fs.readFileSync(templatePath, 'utf8');
-  html = html.replace(/\{\{TITLE\}\}/g, escapeHtml(post.title));
-  html = html.replace(/\{\{BODY\}\}/, bodyHtml);
-  html = html.replace(/\{\{META_TITLE\}\}/g, escapeHtml(post.title) + ' – Blog – ArgusPage');
-  html = html.replace(/\{\{AUTHOR\}\}/g, escapeHtml(post.author_name || ''));
-  html = html.replace(/\{\{DATE\}\}/g, escapeHtml(post.published_at ? new Date(post.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ''));
-  res.type('html').send(html);
+  getMarked()
+    .then((parse) => parse(post.body || '', { async: false }))
+    .then((bodyHtml) => {
+      let html = fs.readFileSync(templatePath, 'utf8');
+      html = html.replace(/\{\{TITLE\}\}/g, escapeHtml(post.title));
+      html = html.replace(/\{\{BODY\}\}/, bodyHtml);
+      html = html.replace(/\{\{META_TITLE\}\}/g, escapeHtml(post.title) + ' – Blog – ArgusPage');
+      html = html.replace(/\{\{AUTHOR\}\}/g, escapeHtml(post.author_name || ''));
+      html = html.replace(/\{\{DATE\}\}/g, escapeHtml(post.published_at ? new Date(post.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ''));
+      res.type('html').send(html);
+    })
+    .catch((err) => {
+      console.error('Markdown parse (blog):', err);
+      res.status(500).send('Error rendering post');
+    });
 });
 
 // Catch-all: serve requested file or 404 (path traversal safe)
