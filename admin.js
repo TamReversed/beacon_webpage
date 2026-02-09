@@ -55,7 +55,7 @@
   }
 
   function loadDocuments() {
-    return fetch('/api/documents', { credentials: 'include' })
+    return fetch('/api/admin/documents', { credentials: 'include' })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         var tbody = document.getElementById('tbody-documents');
@@ -64,6 +64,7 @@
           var tr = document.createElement('tr');
           tr.setAttribute('data-doc-id', String(doc.id));
           var created = doc.created_at ? new Date(doc.created_at).toLocaleDateString() : '';
+          var isPublished = doc.published !== 0 && doc.published !== false;
 
           var titleCell = document.createElement('td');
           var titleInput = document.createElement('input');
@@ -85,6 +86,18 @@
 
           tr.appendChild(td(doc.original_name || doc.file_name || ''));
           tr.appendChild(td(created));
+
+          var statusCell = document.createElement('td');
+          var statusPill = document.createElement('button');
+          statusPill.type = 'button';
+          statusPill.className = 'admin-status-pill admin-status-pill--' + (isPublished ? 'published' : 'hidden');
+          statusPill.setAttribute('data-id', String(doc.id));
+          statusPill.setAttribute('data-published', isPublished ? '1' : '0');
+          statusPill.setAttribute('tabindex', '0');
+          statusPill.setAttribute('aria-label', isPublished ? 'Published – click to hide' : 'Hidden – click to publish');
+          statusPill.textContent = isPublished ? 'Published' : 'Hidden';
+          statusCell.appendChild(statusPill);
+          tr.appendChild(statusCell);
 
           var actionsCell = document.createElement('td');
           var downloadLink = document.createElement('a');
@@ -327,6 +340,18 @@
           orderInput.style.cssText = 'width:4rem;padding:0.35rem;';
           orderCell.appendChild(orderInput);
           tr.appendChild(orderCell);
+          var visibleCell = document.createElement('td');
+          var visiblePill = document.createElement('button');
+          var isVisible = t.visible !== 0 && t.visible !== false;
+          visiblePill.type = 'button';
+          visiblePill.className = 'admin-status-pill admin-status-pill--' + (isVisible ? 'visible' : 'hidden');
+          visiblePill.setAttribute('data-id', String(t.id));
+          visiblePill.setAttribute('data-visible', isVisible ? '1' : '0');
+          visiblePill.setAttribute('tabindex', '0');
+          visiblePill.setAttribute('aria-label', isVisible ? 'Showing – click to hide' : 'Hidden – click to show');
+          visiblePill.textContent = isVisible ? 'Showing' : 'Hidden';
+          visibleCell.appendChild(visiblePill);
+          tr.appendChild(visibleCell);
           var actCell = document.createElement('td');
           var saveBtn = document.createElement('button');
           saveBtn.type = 'button';
@@ -529,7 +554,43 @@
       });
   });
 
+  function initStatusPillKeydown(containerId) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    container.addEventListener('keydown', function (e) {
+      if (!e.target.classList.contains('admin-status-pill')) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        e.target.click();
+      }
+    });
+  }
+  initStatusPillKeydown('tbody-documents');
+  initStatusPillKeydown('tbody-testimonials');
+
   document.getElementById('tbody-documents').addEventListener('click', function (e) {
+    if (e.target.classList.contains('admin-status-pill')) {
+      var id = e.target.getAttribute('data-id');
+      var current = e.target.getAttribute('data-published') === '1';
+      var next = !current;
+      fetch('/api/documents/' + id, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ published: next }),
+      })
+        .then(function (r) {
+          if (r.ok) {
+            e.target.setAttribute('data-published', next ? '1' : '0');
+            e.target.textContent = next ? 'Published' : 'Hidden';
+            e.target.className = 'admin-status-pill admin-status-pill--' + (next ? 'published' : 'hidden');
+            e.target.setAttribute('aria-label', next ? 'Published – click to hide' : 'Hidden – click to publish');
+            showAdminMessage(next ? 'Document published.' : 'Document hidden.', false);
+          } else return r.json().then(function (d) { throw new Error(d.error || 'Update failed'); });
+        })
+        .catch(function (err) { showAdminMessage(err.message || 'Update failed', true); });
+      return;
+    }
     if (e.target.classList.contains('btn-save-doc')) {
       var id = e.target.getAttribute('data-id');
       var row = e.target.closest('tr');
@@ -844,6 +905,28 @@
   var tbodyTestimonials = document.getElementById('tbody-testimonials');
   if (tbodyTestimonials) {
     tbodyTestimonials.addEventListener('click', function (e) {
+      if (e.target.classList.contains('admin-status-pill')) {
+        var id = e.target.getAttribute('data-id');
+        var current = e.target.getAttribute('data-visible') === '1';
+        var next = !current;
+        fetch('/api/admin/testimonials/' + id, {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ visible: next }),
+        })
+          .then(function (r) {
+            if (r.ok) {
+              e.target.setAttribute('data-visible', next ? '1' : '0');
+              e.target.textContent = next ? 'Showing' : 'Hidden';
+              e.target.className = 'admin-status-pill admin-status-pill--' + (next ? 'visible' : 'hidden');
+              e.target.setAttribute('aria-label', next ? 'Showing – click to hide' : 'Hidden – click to show');
+              showAdminMessage(next ? 'Testimonial showing.' : 'Testimonial hidden.', false);
+            } else return r.json().then(function (d) { throw new Error(d.error || 'Update failed'); });
+          })
+          .catch(function (err) { showAdminMessage(err.message || 'Update failed', true); });
+        return;
+      }
       var id = e.target.getAttribute('data-id');
       if (!id) return;
       if (e.target.classList.contains('btn-save-testimonial')) {
@@ -853,11 +936,13 @@
         var author_title = row.querySelector('.testimonial-title-input').value.trim();
         var avatar_url = row.querySelector('.testimonial-avatar-input').value.trim() || null;
         var sort_order = parseInt(row.querySelector('.testimonial-order-input').value, 10) || 0;
+        var pill = row.querySelector('.admin-status-pill');
+        var visible = pill ? pill.getAttribute('data-visible') === '1' : true;
         fetch('/api/admin/testimonials/' + id, {
           method: 'PUT',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ quote: quote, author_name: author_name, author_title: author_title, avatar_url: avatar_url, sort_order: sort_order }),
+          body: JSON.stringify({ quote: quote, author_name: author_name, author_title: author_title, avatar_url: avatar_url, sort_order: sort_order, visible: visible }),
         })
           .then(function (r) {
             if (r.ok) {

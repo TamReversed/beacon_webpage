@@ -287,7 +287,7 @@ app.get('/api/me', (req, res) => {
 // ——— Documents (require login; admin for write) ———
 app.get('/api/documents', requireLogin, (req, res) => {
   try {
-    const list = listDocuments();
+    const list = listDocuments({ publishedOnly: true });
     res.json({ documents: list });
   } catch (err) {
     console.error('List documents:', err);
@@ -352,10 +352,11 @@ app.patch('/api/documents/:id', requireLogin, requireAdmin, (req, res) => {
   const id = Number(req.params.id);
   const doc = getDocumentById(id);
   if (!doc) return res.status(404).json({ error: 'Document not found' });
-  const { title, description } = req.body || {};
+  const { title, description, published } = req.body || {};
   const ok = updateDocument(id, {
     title: title !== undefined ? String(title).trim() : undefined,
     description: description !== undefined ? (description === '' ? null : String(description).trim()) : undefined,
+    published: published !== undefined ? !!published : undefined,
   });
   if (!ok) return res.status(500).json({ error: 'Update failed' });
   res.json({ document: getDocumentById(id) });
@@ -374,6 +375,17 @@ app.delete('/api/documents/:id', requireLogin, requireAdmin, (req, res) => {
   }
   deleteDocument(id);
   res.status(204).end();
+});
+
+// Admin: list all documents (including hidden)
+app.get('/api/admin/documents', requireLogin, requireAdmin, (req, res) => {
+  try {
+    const list = listDocuments({});
+    res.json({ documents: list });
+  } catch (err) {
+    console.error('List documents:', err);
+    res.status(500).json({ error: 'Failed to list documents' });
+  }
 });
 
 // ——— Admin: users ———
@@ -466,7 +478,7 @@ app.get('/api/companies', (req, res) => {
 
 app.get('/api/testimonials', (req, res) => {
   try {
-    const testimonials = listTestimonials();
+    const testimonials = listTestimonials(true);
     res.json({ testimonials });
   } catch (err) {
     console.error('List testimonials:', err);
@@ -520,7 +532,7 @@ app.delete('/api/admin/companies/:id', requireLogin, requireAdmin, (req, res) =>
 // ——— Admin: testimonials ———
 app.get('/api/admin/testimonials', requireLogin, requireAdmin, (req, res) => {
   try {
-    const testimonials = listTestimonials();
+    const testimonials = listTestimonials(false);
     res.json({ testimonials });
   } catch (err) {
     console.error('List testimonials:', err);
@@ -550,14 +562,26 @@ app.post('/api/admin/testimonials', requireLogin, requireAdmin, (req, res) => {
 app.put('/api/admin/testimonials/:id', requireLogin, requireAdmin, (req, res) => {
   const id = Number(req.params.id);
   if (!getTestimonialById(id)) return res.status(404).json({ error: 'Testimonial not found' });
-  const { quote, author_name, author_title, avatar_url, sort_order } = req.body || {};
+  const { quote, author_name, author_title, avatar_url, sort_order, visible } = req.body || {};
   const fields = {};
   if (quote !== undefined) fields.quote = String(quote).trim();
   if (author_name !== undefined) fields.author_name = String(author_name).trim();
   if (author_title !== undefined) fields.author_title = String(author_title).trim();
   if (avatar_url !== undefined) fields.avatar_url = avatar_url ? String(avatar_url).trim() || null : null;
   if (sort_order !== undefined) fields.sort_order = Number(sort_order) || 0;
+  if (visible !== undefined) fields.visible = !!visible;
   const ok = updateTestimonial(id, fields);
+  if (!ok) return res.status(500).json({ error: 'Update failed' });
+  res.json({ testimonial: getTestimonialById(id) });
+});
+
+app.patch('/api/admin/testimonials/:id', requireLogin, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const row = getTestimonialById(id);
+  if (!row) return res.status(404).json({ error: 'Testimonial not found' });
+  const { visible } = req.body || {};
+  if (visible === undefined) return res.status(400).json({ error: 'visible required' });
+  const ok = updateTestimonial(id, { ...row, visible: !!visible });
   if (!ok) return res.status(500).json({ error: 'Update failed' });
   res.json({ testimonial: getTestimonialById(id) });
 });

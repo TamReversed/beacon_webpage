@@ -87,6 +87,19 @@ db.exec(`
   );
 `);
 
+// Migration: add published (documents) and visible (testimonials) if missing
+function migrateSchema() {
+  const docInfo = db.prepare('PRAGMA table_info(documents)').all();
+  if (!docInfo.some((c) => c.name === 'published')) {
+    db.exec('ALTER TABLE documents ADD COLUMN published INTEGER DEFAULT 1');
+  }
+  const testimInfo = db.prepare('PRAGMA table_info(testimonials)').all();
+  if (!testimInfo.some((c) => c.name === 'visible')) {
+    db.exec('ALTER TABLE testimonials ADD COLUMN visible INTEGER DEFAULT 1');
+  }
+}
+migrateSchema();
+
 // Seed companies and testimonials if empty
 function seedSiteContent() {
   const companyCount = db.prepare('SELECT COUNT(*) as n FROM companies').get();
@@ -165,23 +178,25 @@ function updateUserRolePlan(id, role, plan) {
 }
 
 // Documents
-function listDocuments() {
+function listDocuments(opts = {}) {
+  const { publishedOnly } = opts;
+  const where = publishedOnly ? ' WHERE (COALESCE(published, 1) = 1)' : '';
   const stmt = db.prepare(
-    'SELECT id, title, description, file_name, original_name, mime_type, created_at, updated_at FROM documents ORDER BY created_at DESC'
+    `SELECT id, title, description, file_name, original_name, mime_type, created_at, updated_at, published FROM documents${where} ORDER BY created_at DESC`
   );
   return stmt.all();
 }
 
 function getDocumentById(id) {
   const stmt = db.prepare(
-    'SELECT id, title, description, file_name, original_name, mime_type, created_at, updated_at FROM documents WHERE id = ?'
+    'SELECT id, title, description, file_name, original_name, mime_type, created_at, updated_at, published FROM documents WHERE id = ?'
   );
   return stmt.get(id);
 }
 
 function createDocument(title, description, file_name, original_name, mime_type) {
   const stmt = db.prepare(
-    'INSERT INTO documents (title, description, file_name, original_name, mime_type) VALUES (?, ?, ?, ?, ?)'
+    'INSERT INTO documents (title, description, file_name, original_name, mime_type, published) VALUES (?, ?, ?, ?, ?, 1)'
   );
   const result = stmt.run(
     title || '',
@@ -198,10 +213,11 @@ function updateDocument(id, fields) {
   if (!doc) return false;
   const title = fields.title !== undefined ? fields.title : doc.title;
   const description = fields.description !== undefined ? fields.description : doc.description;
+  const published = fields.published !== undefined ? (fields.published ? 1 : 0) : (doc.published ?? 1);
   const stmt = db.prepare(
-    'UPDATE documents SET title = ?, description = ?, updated_at = datetime(\'now\') WHERE id = ?'
+    'UPDATE documents SET title = ?, description = ?, published = ?, updated_at = datetime(\'now\') WHERE id = ?'
   );
-  const result = stmt.run(title, description, id);
+  const result = stmt.run(title, description, published, id);
   return result.changes > 0;
 }
 
@@ -310,23 +326,24 @@ function deleteCompany(id) {
 }
 
 // Testimonials (homepage reviews)
-function listTestimonials() {
+function listTestimonials(visibleOnly = false) {
+  const where = visibleOnly ? ' WHERE (COALESCE(visible, 1) = 1)' : '';
   const stmt = db.prepare(
-    'SELECT id, quote, author_name, author_title, avatar_url, sort_order FROM testimonials ORDER BY sort_order ASC, id ASC'
+    `SELECT id, quote, author_name, author_title, avatar_url, sort_order, visible FROM testimonials${where} ORDER BY sort_order ASC, id ASC`
   );
   return stmt.all();
 }
 
 function getTestimonialById(id) {
   const stmt = db.prepare(
-    'SELECT id, quote, author_name, author_title, avatar_url, sort_order FROM testimonials WHERE id = ?'
+    'SELECT id, quote, author_name, author_title, avatar_url, sort_order, visible FROM testimonials WHERE id = ?'
   );
   return stmt.get(id);
 }
 
 function createTestimonial(quote, author_name, author_title, avatar_url = null, sort_order = 0) {
   const stmt = db.prepare(
-    'INSERT INTO testimonials (quote, author_name, author_title, avatar_url, sort_order) VALUES (?, ?, ?, ?, ?)'
+    'INSERT INTO testimonials (quote, author_name, author_title, avatar_url, sort_order, visible) VALUES (?, ?, ?, ?, ?, 1)'
   );
   const result = stmt.run(quote || '', author_name || '', author_title || '', avatar_url || null, sort_order);
   return result.lastInsertRowid;
@@ -340,10 +357,11 @@ function updateTestimonial(id, fields) {
   const author_title = fields.author_title !== undefined ? fields.author_title : row.author_title;
   const avatar_url = fields.avatar_url !== undefined ? fields.avatar_url : row.avatar_url;
   const sort_order = fields.sort_order !== undefined ? fields.sort_order : row.sort_order;
+  const visible = fields.visible !== undefined ? (fields.visible ? 1 : 0) : (row.visible ?? 1);
   const stmt = db.prepare(
-    'UPDATE testimonials SET quote = ?, author_name = ?, author_title = ?, avatar_url = ?, sort_order = ? WHERE id = ?'
+    'UPDATE testimonials SET quote = ?, author_name = ?, author_title = ?, avatar_url = ?, sort_order = ?, visible = ? WHERE id = ?'
   );
-  const result = stmt.run(quote, author_name, author_title, avatar_url, sort_order, id);
+  const result = stmt.run(quote, author_name, author_title, avatar_url, sort_order, visible, id);
   return result.changes > 0;
 }
 

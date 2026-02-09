@@ -2505,6 +2505,52 @@ body.inner-page .nav {
   background: var(--color-bg-subtle);
 }
 
+/* Admin one-click status pills (like main UI component toggle) */
+.admin-status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.65rem;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  font-family: var(--font-body);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast) ease, color var(--duration-fast) ease, border-color var(--duration-fast) ease, transform var(--duration-fast) ease;
+}
+
+.admin-status-pill:hover {
+  transform: scale(1.03);
+}
+
+.admin-status-pill:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.admin-status-pill--published,
+.admin-status-pill--visible {
+  background: var(--color-success-muted);
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.admin-status-pill--published:hover,
+.admin-status-pill--visible:hover {
+  background: rgba(13, 148, 136, 0.2);
+}
+
+.admin-status-pill--hidden {
+  background: var(--color-bg-subtle);
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+
+.admin-status-pill--hidden:hover {
+  background: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
 /* Admin responsive */
 @media (max-width: 1024px) {
   .admin-layout {
