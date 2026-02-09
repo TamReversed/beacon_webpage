@@ -142,30 +142,6 @@ function seedSiteContent() {
       'Head of Customer Success, Voltera',
       2
     );
-  const footerLinkCount = db.prepare('SELECT COUNT(*) as n FROM footer_links').get();
-  if (footerLinkCount.n === 0) {
-    const insertFooterLink = db.prepare(
-      'INSERT INTO footer_links (column_name, label, url, sort_order, is_note) VALUES (?, ?, ?, ?, ?)'
-    );
-    // Product column
-    insertFooterLink.run('Product', 'Features', '/features', 0, 0);
-    insertFooterLink.run('Product', 'Pricing', '/pricing', 1, 0);
-    insertFooterLink.run('Product', 'Docs', '/docs', 2, 0);
-    insertFooterLink.run('Product', 'API Reference', '/api', 3, 0);
-    insertFooterLink.run('Product', 'Changelog', '/changelog', 4, 0);
-    // Company column
-    insertFooterLink.run('Company', 'About', '/about', 0, 0);
-    insertFooterLink.run('Company', 'Blog', '/blog', 1, 0);
-    insertFooterLink.run('Company', 'Careers', '/careers', 2, 0);
-    insertFooterLink.run('Company', 'Contact', '/contact', 3, 0);
-    // Legal column
-    insertFooterLink.run('Legal', 'Privacy Policy', '/privacy', 0, 0);
-    insertFooterLink.run('Legal', 'Terms of Service', '/terms', 1, 0);
-    insertFooterLink.run('Legal', 'SLA', '/sla', 2, 0);
-    // Status column
-    insertFooterLink.run('Status', 'ArgusPage Status', 'https://status.arguspage.example', 0, 0);
-    insertFooterLink.run('Status', 'We eat our own dogfood', '#', 1, 1);
-  }
   }
 }
 seedSiteContent();
@@ -669,6 +645,5 @@ module.exports = {
   getFooterLinkById,
   createFooterLink,
   updateFooterLink,
-  deleteFooterLink,
-  SqliteStore,
+  deleteFooterLink,  SqliteStore,
 };

@@ -567,8 +567,7 @@
     loadTestimonials();
     loadDocs();
     loadBlogPosts();
-    loadFooterLinks();
-    initAdminPanels();
+    loadFooterLinks();    initAdminPanels();
   });
 
   document.getElementById('form-add-document').addEventListener('submit', function (e) {

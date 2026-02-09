@@ -46,11 +46,7 @@ const {
   createBlogPost,
   updateBlogPost,
   deleteBlogPost,
-  listFooterLinks,
-  getFooterLinkById,
-  createFooterLink,
-  updateFooterLink,
-  deleteFooterLink,} = require('./db');
+} = require('./db');
 
 let markedParse = null;
 function getMarked() {
@@ -727,73 +723,6 @@ app.patch('/api/admin/blog/:id', requireLogin, requireAdmin, (req, res) => {
 });
 
 app.delete('/api/admin/blog/:id', requireLogin, requireAdmin, (req, res) => {
-
-// ========== Footer Links API ==========
-app.get('/api/footer-links', (req, res) => {
-  try {
-    const links = listFooterLinks({ visibleOnly: true });
-    res.json({ footerLinks: links });
-  } catch (error) {
-    console.error('Error fetching footer links:', error);
-    res.status(500).json({ error: 'Failed to fetch footer links' });
-  }
-});
-
-app.get('/api/admin/footer-links', requireLogin, requireAdmin, (req, res) => {
-  try {
-    const links = listFooterLinks({ visibleOnly: false });
-    res.json({ footerLinks: links });
-  } catch (error) {
-    console.error('Error fetching footer links:', error);
-    res.status(500).json({ error: 'Failed to fetch footer links' });
-  }
-});
-
-app.post('/api/admin/footer-links', requireLogin, requireAdmin, (req, res) => {
-  try {
-    const { column_name, label, url, sort_order, is_note } = req.body;
-    if (!column_name || !label || !url) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-    const id = createFooterLink(column_name, label, url, sort_order || 0, is_note || 0);
-    res.json({ success: true, id });
-  } catch (error) {
-    console.error('Error creating footer link:', error);
-    res.status(500).json({ error: 'Failed to create footer link' });
-  }
-});
-
-app.put('/api/admin/footer-links/:id', requireLogin, requireAdmin, (req, res) => {
-  try {
-    const { id } = req.params;
-    const { column_name, label, url, sort_order, is_note, visible } = req.body;
-    const success = updateFooterLink(id, { column_name, label, url, sort_order, is_note, visible });
-    if (success) {
-      res.json({ success: true });
-    } else {
-      res.status(404).json({ error: 'Footer link not found' });
-    }
-  } catch (error) {
-    console.error('Error updating footer link:', error);
-    res.status(500).json({ error: 'Failed to update footer link' });
-  }
-});
-
-app.delete('/api/admin/footer-links/:id', requireLogin, requireAdmin, (req, res) => {
-  try {
-    const { id } = req.params;
-    const success = deleteFooterLink(id);
-    if (success) {
-      res.json({ success: true });
-    } else {
-      res.status(404).json({ error: 'Footer link not found' });
-    }
-  } catch (error) {
-    console.error('Error deleting footer link:', error);
-    res.status(500).json({ error: 'Failed to delete footer link' });
-  }
-});
-
   const id = Number(req.params.id);
   if (!getBlogPostById(id)) return res.status(404).json({ error: 'Post not found' });
   deleteBlogPost(id);

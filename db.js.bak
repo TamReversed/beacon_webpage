@@ -85,18 +85,6 @@ db.exec(`
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now'))
   );
-
-  CREATE TABLE IF NOT EXISTS footer_links (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    column_name TEXT NOT NULL,
-    label TEXT NOT NULL,
-    url TEXT NOT NULL,
-    sort_order INTEGER DEFAULT 0,
-    is_note INTEGER DEFAULT 0,
-    visible INTEGER DEFAULT 1,
-    created_at TEXT DEFAULT (datetime('now')),
-    updated_at TEXT DEFAULT (datetime('now'))
-  );
 `);
 
 // Migration: add published (documents) and visible (testimonials) if missing
@@ -142,30 +130,6 @@ function seedSiteContent() {
       'Head of Customer Success, Voltera',
       2
     );
-  const footerLinkCount = db.prepare('SELECT COUNT(*) as n FROM footer_links').get();
-  if (footerLinkCount.n === 0) {
-    const insertFooterLink = db.prepare(
-      'INSERT INTO footer_links (column_name, label, url, sort_order, is_note) VALUES (?, ?, ?, ?, ?)'
-    );
-    // Product column
-    insertFooterLink.run('Product', 'Features', '/features', 0, 0);
-    insertFooterLink.run('Product', 'Pricing', '/pricing', 1, 0);
-    insertFooterLink.run('Product', 'Docs', '/docs', 2, 0);
-    insertFooterLink.run('Product', 'API Reference', '/api', 3, 0);
-    insertFooterLink.run('Product', 'Changelog', '/changelog', 4, 0);
-    // Company column
-    insertFooterLink.run('Company', 'About', '/about', 0, 0);
-    insertFooterLink.run('Company', 'Blog', '/blog', 1, 0);
-    insertFooterLink.run('Company', 'Careers', '/careers', 2, 0);
-    insertFooterLink.run('Company', 'Contact', '/contact', 3, 0);
-    // Legal column
-    insertFooterLink.run('Legal', 'Privacy Policy', '/privacy', 0, 0);
-    insertFooterLink.run('Legal', 'Terms of Service', '/terms', 1, 0);
-    insertFooterLink.run('Legal', 'SLA', '/sla', 2, 0);
-    // Status column
-    insertFooterLink.run('Status', 'ArgusPage Status', 'https://status.arguspage.example', 0, 0);
-    insertFooterLink.run('Status', 'We eat our own dogfood', '#', 1, 1);
-  }
   }
 }
 seedSiteContent();
@@ -579,52 +543,6 @@ SqliteStore.prototype.touch = function (sid, session, callback) {
   });
 };
 
-
-// Footer Links
-function listFooterLinks(opts = {}) {
-  const { visibleOnly } = opts;
-  const where = visibleOnly ? ' WHERE visible = 1' : '';
-  const stmt = db.prepare(
-    `SELECT id, column_name, label, url, sort_order, is_note, visible FROM footer_links${where} ORDER BY column_name, sort_order, id`
-  );
-  return stmt.all();
-}
-
-function getFooterLinkById(id) {
-  const stmt = db.prepare('SELECT * FROM footer_links WHERE id = ?');
-  return stmt.get(id);
-}
-
-function createFooterLink(column_name, label, url, sort_order = 0, is_note = 0) {
-  const stmt = db.prepare(
-    'INSERT INTO footer_links (column_name, label, url, sort_order, is_note, visible) VALUES (?, ?, ?, ?, ?, 1)'
-  );
-  const result = stmt.run(column_name, label, url, sort_order, is_note ? 1 : 0);
-  return result.lastInsertRowid;
-}
-
-function updateFooterLink(id, fields) {
-  const link = getFooterLinkById(id);
-  if (!link) return false;
-  const column_name = fields.column_name !== undefined ? fields.column_name : link.column_name;
-  const label = fields.label !== undefined ? fields.label : link.label;
-  const url = fields.url !== undefined ? fields.url : link.url;
-  const sort_order = fields.sort_order !== undefined ? fields.sort_order : link.sort_order;
-  const is_note = fields.is_note !== undefined ? (fields.is_note ? 1 : 0) : link.is_note;
-  const visible = fields.visible !== undefined ? (fields.visible ? 1 : 0) : link.visible;
-  const stmt = db.prepare(
-    'UPDATE footer_links SET column_name = ?, label = ?, url = ?, sort_order = ?, is_note = ?, visible = ?, updated_at = datetime(\'now\') WHERE id = ?'
-  );
-  const result = stmt.run(column_name, label, url, sort_order, is_note, visible, id);
-  return result.changes > 0;
-}
-
-function deleteFooterLink(id) {
-  const stmt = db.prepare('DELETE FROM footer_links WHERE id = ?');
-  const result = stmt.run(id);
-  return result.changes > 0;
-}
-
 module.exports = {
   db,
   createUser,
@@ -665,10 +583,5 @@ module.exports = {
   createBlogPost,
   updateBlogPost,
   deleteBlogPost,
-  listFooterLinks,
-  getFooterLinkById,
-  createFooterLink,
-  updateFooterLink,
-  deleteFooterLink,
   SqliteStore,
 };

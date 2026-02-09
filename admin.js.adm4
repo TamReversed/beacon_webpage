@@ -567,7 +567,6 @@
     loadTestimonials();
     loadDocs();
     loadBlogPosts();
-    loadFooterLinks();
     initAdminPanels();
   });
 
