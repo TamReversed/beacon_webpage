@@ -805,10 +805,6 @@ app.delete('/api/admin/footer-links/:id', requireLogin, requireAdmin, (req, res)
 });
 
   const id = Number(req.params.id);
-  if (!getBlogPostById(id)) return res.status(404).json({ error: 'Post not found' });
-  deleteBlogPost(id);
-  res.status(204).end();
-});
 
 // Dynamic doc and blog post pages (must be before catch-all)
 function escapeHtml(s) {
