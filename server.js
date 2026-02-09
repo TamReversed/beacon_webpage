@@ -34,7 +34,20 @@ const {
   createTestimonial,
   updateTestimonial,
   deleteTestimonial,
+  listDocs,
+  getDocById,
+  getDocBySlug,
+  createDoc,
+  updateDoc,
+  deleteDoc,
+  listBlogPosts,
+  getBlogPostById,
+  getBlogPostBySlug,
+  createBlogPost,
+  updateBlogPost,
+  deleteBlogPost,
 } = require('./db');
+const { marked } = require('marked');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -50,7 +63,9 @@ if (process.env.NODE_ENV === 'production') {
   }
 }
 
-const UPLOADS_DIR = path.join(__dirname, 'uploads', 'documents');
+const UPLOADS_DIR = process.env.UPLOADS_PATH
+  ? path.resolve(process.env.UPLOADS_PATH)
+  : path.join(__dirname, 'uploads', 'documents');
 try {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 } catch (e) {}
@@ -544,6 +559,167 @@ app.delete('/api/admin/testimonials/:id', requireLogin, requireAdmin, (req, res)
   if (!getTestimonialById(id)) return res.status(404).json({ error: 'Testimonial not found' });
   deleteTestimonial(id);
   res.status(204).end();
+});
+
+// ——— Docs (CMS) ———
+app.get('/api/docs', (req, res) => {
+  try {
+    res.json({ docs: listDocs() });
+  } catch (err) {
+    console.error('List docs:', err);
+    res.status(500).json({ error: 'Failed to list docs' });
+  }
+});
+
+app.get('/api/docs/:slug', (req, res) => {
+  const doc = getDocBySlug(req.params.slug);
+  if (!doc) return res.status(404).json({ error: 'Not found' });
+  res.json({ doc });
+});
+
+app.post('/api/admin/docs', requireLogin, requireAdmin, (req, res) => {
+  const { title, slug, body, sort_order } = req.body || {};
+  const titleStr = title != null ? String(title).trim() : '';
+  if (!titleStr) return res.status(400).json({ error: 'Title is required' });
+  try {
+    const id = createDoc(titleStr, slug, body != null ? String(body) : '', Number(sort_order) || 0);
+    res.status(201).json({ doc: getDocById(id) });
+  } catch (err) {
+    if (err && err.code === 'SQLITE_CONSTRAINT_UNIQUE') return res.status(400).json({ error: 'Slug already in use' });
+    console.error('Create doc:', err);
+    res.status(500).json({ error: 'Failed to create doc' });
+  }
+});
+
+app.patch('/api/admin/docs/:id', requireLogin, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  if (!getDocById(id)) return res.status(404).json({ error: 'Doc not found' });
+  const { title, slug, body, sort_order } = req.body || {};
+  const fields = {};
+  if (title !== undefined) fields.title = String(title).trim();
+  if (slug !== undefined) fields.slug = String(slug).trim();
+  if (body !== undefined) fields.body = String(body);
+  if (sort_order !== undefined) fields.sort_order = Number(sort_order) || 0;
+  try {
+    const ok = updateDoc(id, fields);
+    if (!ok) return res.status(500).json({ error: 'Update failed' });
+    res.json({ doc: getDocById(id) });
+  } catch (err) {
+    if (err && err.code === 'SQLITE_CONSTRAINT_UNIQUE') return res.status(400).json({ error: 'Slug already in use' });
+    console.error('Update doc:', err);
+    res.status(500).json({ error: 'Update failed' });
+  }
+});
+
+app.delete('/api/admin/docs/:id', requireLogin, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  if (!getDocById(id)) return res.status(404).json({ error: 'Doc not found' });
+  deleteDoc(id);
+  res.status(204).end();
+});
+
+// ——— Blog (CMS) ———
+app.get('/api/blog', (req, res) => {
+  try {
+    res.json({ posts: listBlogPosts() });
+  } catch (err) {
+    console.error('List blog:', err);
+    res.status(500).json({ error: 'Failed to list posts' });
+  }
+});
+
+app.get('/api/blog/:slug', (req, res) => {
+  const post = getBlogPostBySlug(req.params.slug);
+  if (!post) return res.status(404).json({ error: 'Not found' });
+  res.json({ post });
+});
+
+app.post('/api/admin/blog', requireLogin, requireAdmin, (req, res) => {
+  const { title, slug, excerpt, body, author_name, published_at } = req.body || {};
+  const titleStr = title != null ? String(title).trim() : '';
+  if (!titleStr) return res.status(400).json({ error: 'Title is required' });
+  try {
+    const id = createBlogPost(
+      titleStr,
+      slug,
+      excerpt != null ? String(excerpt).trim() : null,
+      body != null ? String(body) : '',
+      author_name != null ? String(author_name).trim() : '',
+      published_at || null
+    );
+    res.status(201).json({ post: getBlogPostById(id) });
+  } catch (err) {
+    if (err && err.code === 'SQLITE_CONSTRAINT_UNIQUE') return res.status(400).json({ error: 'Slug already in use' });
+    console.error('Create blog post:', err);
+    res.status(500).json({ error: 'Failed to create post' });
+  }
+});
+
+app.patch('/api/admin/blog/:id', requireLogin, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  if (!getBlogPostById(id)) return res.status(404).json({ error: 'Post not found' });
+  const { title, slug, excerpt, body, author_name, published_at } = req.body || {};
+  const fields = {};
+  if (title !== undefined) fields.title = String(title).trim();
+  if (slug !== undefined) fields.slug = String(slug).trim();
+  if (excerpt !== undefined) fields.excerpt = excerpt == null ? null : String(excerpt).trim();
+  if (body !== undefined) fields.body = String(body);
+  if (author_name !== undefined) fields.author_name = String(author_name).trim();
+  if (published_at !== undefined) fields.published_at = published_at;
+  try {
+    const ok = updateBlogPost(id, fields);
+    if (!ok) return res.status(500).json({ error: 'Update failed' });
+    res.json({ post: getBlogPostById(id) });
+  } catch (err) {
+    if (err && err.code === 'SQLITE_CONSTRAINT_UNIQUE') return res.status(400).json({ error: 'Slug already in use' });
+    console.error('Update blog post:', err);
+    res.status(500).json({ error: 'Update failed' });
+  }
+});
+
+app.delete('/api/admin/blog/:id', requireLogin, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  if (!getBlogPostById(id)) return res.status(404).json({ error: 'Post not found' });
+  deleteBlogPost(id);
+  res.status(204).end();
+});
+
+// Dynamic doc and blog post pages (must be before catch-all)
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+app.get('/docs/:slug', (req, res) => {
+  const doc = getDocBySlug(req.params.slug);
+  if (!doc) return res.status(404).end();
+  const bodyHtml = marked.parse(doc.body || '', { async: false });
+  const templatePath = path.join(__dirname, 'views', 'doc-show.html');
+  if (!fs.existsSync(templatePath)) return res.status(500).send('Template not found');
+  let html = fs.readFileSync(templatePath, 'utf8');
+  html = html.replace(/\{\{TITLE\}\}/g, escapeHtml(doc.title));
+  html = html.replace(/\{\{BODY\}\}/, bodyHtml);
+  html = html.replace(/\{\{META_TITLE\}\}/g, escapeHtml(doc.title) + ' – Documentation – ArgusPage');
+  res.type('html').send(html);
+});
+
+app.get('/blog/:slug', (req, res) => {
+  const post = getBlogPostBySlug(req.params.slug);
+  if (!post) return res.status(404).end();
+  const bodyHtml = marked.parse(post.body || '', { async: false });
+  const templatePath = path.join(__dirname, 'views', 'blog-show.html');
+  if (!fs.existsSync(templatePath)) return res.status(500).send('Template not found');
+  let html = fs.readFileSync(templatePath, 'utf8');
+  html = html.replace(/\{\{TITLE\}\}/g, escapeHtml(post.title));
+  html = html.replace(/\{\{BODY\}\}/, bodyHtml);
+  html = html.replace(/\{\{META_TITLE\}\}/g, escapeHtml(post.title) + ' – Blog – ArgusPage');
+  html = html.replace(/\{\{AUTHOR\}\}/g, escapeHtml(post.author_name || ''));
+  html = html.replace(/\{\{DATE\}\}/g, escapeHtml(post.published_at ? new Date(post.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ''));
+  res.type('html').send(html);
 });
 
 // Catch-all: serve requested file or 404 (path traversal safe)

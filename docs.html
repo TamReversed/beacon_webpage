@@ -47,32 +47,9 @@
 
     <div class="page-content" id="main">
         <div class="container">
-            <div class="doc-grid">
-                <a href="#" class="doc-card">
-                    <h3>Quick start</h3>
-                    <p>Get your status page live in under 2 minutes. Create an account, add components, and share the link.</p>
-                </a>
-                <a href="/api" class="doc-card">
-                    <h3>API Reference</h3>
-                    <p>REST API for incidents, components, and subscribers. Authentication, rate limits, and examples.</p>
-                </a>
-                <a href="#" class="doc-card">
-                    <h3>Incidents</h3>
-                    <p>Create, update, and resolve incidents. Status levels, timelines, and notifications.</p>
-                </a>
-                <a href="#" class="doc-card">
-                    <h3>Components &amp; groups</h3>
-                    <p>Organize services into groups. Set status per component and show uptime history.</p>
-                </a>
-                <a href="#" class="doc-card">
-                    <h3>Subscribers</h3>
-                    <p>Email subscriptions, double opt-in, component-specific notifications, and CAN-SPAM.</p>
-                </a>
-                <a href="#" class="doc-card">
-                    <h3>Custom domain</h3>
-                    <p>Use your own domain (Pro plan). DNS setup, SSL, and branding.</p>
-                </a>
-            </div>
+            <div id="docs-list-status" class="docs-list-status">Loading…</div>
+            <div class="doc-grid" id="docs-list"></div>
+            <p style="margin-top: 1.5rem;"><a href="/api" class="doc-card" style="display: inline-flex;">API Reference</a></p>
         </div>
     </div>
 
@@ -126,5 +103,37 @@
     </footer>
     <script src="/auth-nav.js"></script>
     <script src="/main.js"></script>
+    <script>
+      (function () {
+        var statusEl = document.getElementById('docs-list-status');
+        var listEl = document.getElementById('docs-list');
+        fetch('/api/docs', { credentials: 'include' })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            var docs = data.docs || [];
+            statusEl.textContent = '';
+            if (docs.length === 0) {
+              statusEl.textContent = 'No docs yet.';
+              return;
+            }
+            docs.forEach(function (d) {
+              var a = document.createElement('a');
+              a.href = '/docs/' + encodeURIComponent(d.slug || '');
+              a.className = 'doc-card';
+              var h3 = document.createElement('h3');
+              h3.textContent = d.title || 'Untitled';
+              var p = document.createElement('p');
+              p.textContent = (d.body || '').slice(0, 120).replace(/\n/g, ' ');
+              if ((d.body || '').length > 120) p.textContent += '…';
+              a.appendChild(h3);
+              a.appendChild(p);
+              listEl.appendChild(a);
+            });
+          })
+          .catch(function () {
+            statusEl.textContent = 'Could not load docs.';
+          });
+      })();
+    </script>
 </body>
 </html>

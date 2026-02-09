@@ -21,7 +21,8 @@ Open **http://localhost:3000** in your browser (do not open the HTML files direc
 | `PORT` | Server port (default `3000`). Railway sets this automatically. |
 | `SESSION_SECRET` | **Required in production.** A long random string for signing session cookies. Generate with `openssl rand -hex 32`. |
 | `NODE_ENV` | Set to `production` in production. Enables secure cookies. |
-| `DATABASE_PATH` | Optional. Path to SQLite file (default: `arguspage.db` in project root). |
+| `DATABASE_PATH` | Optional. Path to SQLite file (default: `arguspage.db` in project root). **Set to a path on a Volume** so users and all admin data persist across deploys. |
+| `UPLOADS_PATH` | Optional. Directory for document-library uploads (default: `uploads/documents` in project). **Set to a path on the same Volume** (e.g. `/data/uploads`) so uploaded files persist across deploys. |
 
 ## Deploy on Railway
 
@@ -33,13 +34,16 @@ Open **http://localhost:3000** in your browser (do not open the HTML files direc
    - `NODE_ENV` = `production` (optional; Railway often sets this automatically).
 5. Trigger a redeploy so the new variables are picked up.
 
-**Important – Data persistence (avoid losing users on every deploy):**  
-By default the SQLite file lives on the container filesystem. **Each redeploy replaces the container, so the database is recreated empty and all users (and documents, sessions, etc.) are lost.** To keep data across deploys:
+**Important – Persist admin settings and data across upgrades/pushes:**  
+By default the database and uploads directory live on the container filesystem. **Each redeploy replaces the container, so you lose users, admin roles, document library files, Docs/Blog CMS content, testimonials, companies, and ideas.** To keep everything across deploys:
 
-- **Option A – Railway Volume (recommended):** In your Railway service, add a **Volume** and set its mount path (e.g. `/data`). In **Variables**, set `DATABASE_PATH` = `/data/arguspage.db` (or another path inside the volume). The database will then persist across redeploys.
-- **Option B:** Use Railway Postgres and change the app to use Postgres instead of SQLite (requires code changes).
+- **Option A – Railway Volume (recommended):** In your Railway service, add a **Volume** and set its mount path (e.g. `/data`). In **Variables**, set:
+  - `DATABASE_PATH` = `/data/arguspage.db` — persists users, roles, sessions, docs, blog posts, testimonials, companies, ideas, document metadata.
+  - `UPLOADS_PATH` = `/data/uploads` — persists document-library uploaded files (PDFs, etc.).
+  After that, upgrades and pushes will keep all admin settings and content.
+- **Option B:** Use Railway Postgres (and optionally external file storage) with code changes.
 
-If you see a startup log like *"Database has no users"* in production, that usually means the DB is not on a persistent volume and will be wiped on the next deploy.
+If you see a startup log like *"Database has no users"* in production, the DB is not on a persistent volume and will be wiped on the next deploy.
 
 ## Deploy on a VPS (Ubuntu/Debian)
 
@@ -104,9 +108,10 @@ If you see a startup log like *"Database has no users"* in production, that usua
 - Use **HTTPS** so the `secure` cookie flag works.
 - Keep `arguspage.db` (and the app directory) not world-writable; run the process as a dedicated user (e.g. `www-data`).
 
-## Database
+## Database and uploads
 
-- **SQLite** file: `arguspage.db` in the project root (or path from `DATABASE_PATH`). On Railway, **you must set `DATABASE_PATH` to a path on a Volume** or all users and data are lost on every redeploy. On a VPS, back the file up regularly.
+- **SQLite** file: `arguspage.db` in the project root (or path from `DATABASE_PATH`). On Railway, **set `DATABASE_PATH` to a path on a Volume** (e.g. `/data/arguspage.db`) or all users and admin data are lost on every redeploy.
+- **Document uploads:** Stored in `uploads/documents` by default, or the directory given by `UPLOADS_PATH`. On Railway, **set `UPLOADS_PATH` to a path on the same Volume** (e.g. `/data/uploads`) or uploaded files are lost on redeploy. On a VPS, back up both the DB file and the uploads directory regularly.
 - Tables: `users` (id, email, password_hash, name, created_at), `sessions` (id, expires, data).
 - Passwords are hashed with **bcrypt** (cost 12).
 
@@ -124,9 +129,4 @@ There is no in-app way to become an administrator. After a user has registered:
 
 ## Content (Docs & Blog)
 
-The **Docs** and **Blog** pages are static HTML. To change them:
-
-1. Edit [docs.html](docs.html) and [blog.html](blog.html) (and any linked assets) in the repo.
-2. Commit and push, then redeploy so the updated files are served.
-
-There is no in-app editor for docs or blog; changes are made in the codebase and deployed.
+**Docs** and **Blog** are managed in the **Admin** panel (logged-in admin only). From **/admin** you can add, edit, and delete documentation articles and blog posts. Content is stored in the database and rendered as Markdown. The list pages (**/docs** and **/blog**) load from the API; individual articles are served at **/docs/:slug** and **/blog/:slug**.

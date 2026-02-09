@@ -63,6 +63,28 @@ db.exec(`
     avatar_url TEXT,
     sort_order INTEGER DEFAULT 0
   );
+
+  CREATE TABLE IF NOT EXISTS docs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    body TEXT NOT NULL,
+    sort_order INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS blog_posts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    excerpt TEXT,
+    body TEXT NOT NULL,
+    author_name TEXT NOT NULL,
+    published_at TEXT DEFAULT (datetime('now')),
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
 `);
 
 // Seed companies and testimonials if empty
@@ -331,6 +353,127 @@ function deleteTestimonial(id) {
   return result.changes > 0;
 }
 
+function slugify(s) {
+  return String(s || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '') || 'untitled';
+}
+
+// Docs (CMS)
+function listDocs() {
+  const stmt = db.prepare(
+    'SELECT id, title, slug, body, sort_order, created_at, updated_at FROM docs ORDER BY sort_order ASC, created_at ASC'
+  );
+  return stmt.all();
+}
+
+function getDocById(id) {
+  const stmt = db.prepare(
+    'SELECT id, title, slug, body, sort_order, created_at, updated_at FROM docs WHERE id = ?'
+  );
+  return stmt.get(id);
+}
+
+function getDocBySlug(slug) {
+  const stmt = db.prepare(
+    'SELECT id, title, slug, body, sort_order, created_at, updated_at FROM docs WHERE slug = ?'
+  );
+  return stmt.get(slug);
+}
+
+function createDoc(title, slug, body, sort_order = 0) {
+  const s = (slug && String(slug).trim()) || slugify(title);
+  const stmt = db.prepare(
+    'INSERT INTO docs (title, slug, body, sort_order) VALUES (?, ?, ?, ?)'
+  );
+  const result = stmt.run(title || '', s, body || '', sort_order);
+  return result.lastInsertRowid;
+}
+
+function updateDoc(id, fields) {
+  const row = getDocById(id);
+  if (!row) return false;
+  const title = fields.title !== undefined ? fields.title : row.title;
+  const slug = fields.slug !== undefined ? (fields.slug.trim() || slugify(title)) : row.slug;
+  const body = fields.body !== undefined ? fields.body : row.body;
+  const sort_order = fields.sort_order !== undefined ? fields.sort_order : row.sort_order;
+  const stmt = db.prepare(
+    'UPDATE docs SET title = ?, slug = ?, body = ?, sort_order = ?, updated_at = datetime(\'now\') WHERE id = ?'
+  );
+  const result = stmt.run(title, slug, body, sort_order, id);
+  return result.changes > 0;
+}
+
+function deleteDoc(id) {
+  const stmt = db.prepare('DELETE FROM docs WHERE id = ?');
+  const result = stmt.run(id);
+  return result.changes > 0;
+}
+
+// Blog posts (CMS)
+function listBlogPosts() {
+  const stmt = db.prepare(
+    'SELECT id, title, slug, excerpt, body, author_name, published_at, created_at, updated_at FROM blog_posts ORDER BY published_at DESC, id DESC'
+  );
+  return stmt.all();
+}
+
+function getBlogPostById(id) {
+  const stmt = db.prepare(
+    'SELECT id, title, slug, excerpt, body, author_name, published_at, created_at, updated_at FROM blog_posts WHERE id = ?'
+  );
+  return stmt.get(id);
+}
+
+function getBlogPostBySlug(slug) {
+  const stmt = db.prepare(
+    'SELECT id, title, slug, excerpt, body, author_name, published_at, created_at, updated_at FROM blog_posts WHERE slug = ?'
+  );
+  return stmt.get(slug);
+}
+
+function createBlogPost(title, slug, excerpt, body, author_name, published_at = null) {
+  const s = (slug && String(slug).trim()) || slugify(title);
+  const stmt = db.prepare(
+    'INSERT INTO blog_posts (title, slug, excerpt, body, author_name, published_at) VALUES (?, ?, ?, ?, ?, ?)'
+  );
+  const result = stmt.run(
+    title || '',
+    s,
+    excerpt || null,
+    body || '',
+    author_name || '',
+    published_at || new Date().toISOString().slice(0, 19).replace('T', ' ')
+  );
+  return result.lastInsertRowid;
+}
+
+function updateBlogPost(id, fields) {
+  const row = getBlogPostById(id);
+  if (!row) return false;
+  const title = fields.title !== undefined ? fields.title : row.title;
+  const slug = fields.slug !== undefined ? (fields.slug.trim() || slugify(title)) : row.slug;
+  const excerpt = fields.excerpt !== undefined ? fields.excerpt : row.excerpt;
+  const body = fields.body !== undefined ? fields.body : row.body;
+  const author_name = fields.author_name !== undefined ? fields.author_name : row.author_name;
+  const published_at = fields.published_at !== undefined ? fields.published_at : row.published_at;
+  const stmt = db.prepare(
+    'UPDATE blog_posts SET title = ?, slug = ?, excerpt = ?, body = ?, author_name = ?, published_at = ?, updated_at = datetime(\'now\') WHERE id = ?'
+  );
+  const result = stmt.run(title, slug, excerpt, body, author_name, published_at, id);
+  return result.changes > 0;
+}
+
+function deleteBlogPost(id) {
+  const stmt = db.prepare('DELETE FROM blog_posts WHERE id = ?');
+  const result = stmt.run(id);
+  return result.changes > 0;
+}
+
 function SqliteStore() {
   Store.call(this);
 }
@@ -410,5 +553,17 @@ module.exports = {
   createTestimonial,
   updateTestimonial,
   deleteTestimonial,
+  listDocs,
+  getDocById,
+  getDocBySlug,
+  createDoc,
+  updateDoc,
+  deleteDoc,
+  listBlogPosts,
+  getBlogPostById,
+  getBlogPostBySlug,
+  createBlogPost,
+  updateBlogPost,
+  deleteBlogPost,
   SqliteStore,
 };

@@ -347,6 +347,151 @@
       });
   }
 
+  function loadDocs() {
+    return fetch('/api/docs', { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var tbody = document.getElementById('tbody-docs-cms');
+        clearEl(tbody);
+        (data.docs || []).forEach(function (d) {
+          var tr = document.createElement('tr');
+          tr.setAttribute('data-doc-id', String(d.id));
+          var titleCell = document.createElement('td');
+          var titleInput = document.createElement('input');
+          titleInput.type = 'text';
+          titleInput.className = 'cms-doc-title';
+          titleInput.value = (d.title || '').toString();
+          titleInput.style.cssText = 'width:100%;max-width:180px;padding:0.35rem;';
+          titleCell.appendChild(titleInput);
+          tr.appendChild(titleCell);
+          var slugCell = document.createElement('td');
+          var slugInput = document.createElement('input');
+          slugInput.type = 'text';
+          slugInput.className = 'cms-doc-slug';
+          slugInput.value = (d.slug || '').toString();
+          slugInput.style.cssText = 'width:100%;max-width:120px;padding:0.35rem;';
+          slugCell.appendChild(slugInput);
+          tr.appendChild(slugCell);
+          var orderCell = document.createElement('td');
+          var orderInput = document.createElement('input');
+          orderInput.type = 'number';
+          orderInput.className = 'cms-doc-order';
+          orderInput.value = d.sort_order != null ? d.sort_order : 0;
+          orderInput.style.cssText = 'width:4rem;padding:0.35rem;';
+          orderCell.appendChild(orderInput);
+          tr.appendChild(orderCell);
+          var bodyCell = document.createElement('td');
+          var bodyInput = document.createElement('textarea');
+          bodyInput.className = 'cms-doc-body';
+          bodyInput.rows = 2;
+          bodyInput.value = (d.body || '').toString();
+          bodyInput.style.cssText = 'width:100%;min-width:200px;padding:0.35rem;font-size:0.875rem;';
+          bodyCell.appendChild(bodyInput);
+          tr.appendChild(bodyCell);
+          var actCell = document.createElement('td');
+          var viewLink = document.createElement('a');
+          viewLink.href = '/docs/' + (d.slug || '');
+          viewLink.target = '_blank';
+          viewLink.rel = 'noopener';
+          viewLink.textContent = 'View';
+          actCell.appendChild(viewLink);
+          var saveBtn = document.createElement('button');
+          saveBtn.type = 'button';
+          saveBtn.className = 'btn btn-primary btn-sm btn-save-doc-cms';
+          saveBtn.setAttribute('data-id', String(d.id));
+          saveBtn.textContent = 'Save';
+          saveBtn.style.marginLeft = '0.5rem';
+          actCell.appendChild(saveBtn);
+          var delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'btn btn-outline btn-sm btn-delete-doc-cms';
+          delBtn.setAttribute('data-id', String(d.id));
+          delBtn.textContent = 'Delete';
+          delBtn.style.marginLeft = '0.25rem';
+          actCell.appendChild(delBtn);
+          tr.appendChild(actCell);
+          tbody.appendChild(tr);
+        });
+      });
+  }
+
+  function loadBlogPosts() {
+    return fetch('/api/blog', { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var tbody = document.getElementById('tbody-blog-cms');
+        clearEl(tbody);
+        (data.posts || []).forEach(function (p) {
+          var tr = document.createElement('tr');
+          tr.setAttribute('data-post-id', String(p.id));
+          var titleCell = document.createElement('td');
+          var titleInput = document.createElement('input');
+          titleInput.type = 'text';
+          titleInput.className = 'cms-blog-title';
+          titleInput.value = (p.title || '').toString();
+          titleInput.style.cssText = 'width:100%;max-width:180px;padding:0.35rem;';
+          titleCell.appendChild(titleInput);
+          tr.appendChild(titleCell);
+          var slugCell = document.createElement('td');
+          var slugInput = document.createElement('input');
+          slugInput.type = 'text';
+          slugInput.className = 'cms-blog-slug';
+          slugInput.value = (p.slug || '').toString();
+          slugInput.style.cssText = 'width:100%;max-width:120px;padding:0.35rem;';
+          slugCell.appendChild(slugInput);
+          tr.appendChild(slugCell);
+          var authorCell = document.createElement('td');
+          var authorInput = document.createElement('input');
+          authorInput.type = 'text';
+          authorInput.className = 'cms-blog-author';
+          authorInput.value = (p.author_name || '').toString();
+          authorInput.style.cssText = 'width:100%;max-width:120px;padding:0.35rem;';
+          authorCell.appendChild(authorInput);
+          tr.appendChild(authorCell);
+          var pubCell = document.createElement('td');
+          var pubInput = document.createElement('input');
+          pubInput.type = 'text';
+          pubInput.className = 'cms-blog-published';
+          pubInput.value = (p.published_at || '').toString().slice(0, 19).replace('T', ' ');
+          pubInput.placeholder = 'YYYY-MM-DD HH:MM';
+          pubInput.style.cssText = 'width:100%;max-width:140px;padding:0.35rem;';
+          pubCell.appendChild(pubInput);
+          tr.appendChild(pubCell);
+          var bodyCell = document.createElement('td');
+          var bodyInput = document.createElement('textarea');
+          bodyInput.className = 'cms-blog-body';
+          bodyInput.rows = 2;
+          bodyInput.value = (p.body || '').toString();
+          bodyInput.style.cssText = 'width:100%;min-width:200px;padding:0.35rem;font-size:0.875rem;';
+          bodyCell.appendChild(bodyInput);
+          tr.appendChild(bodyCell);
+          var actCell = document.createElement('td');
+          var viewLink = document.createElement('a');
+          viewLink.href = '/blog/' + (p.slug || '');
+          viewLink.target = '_blank';
+          viewLink.rel = 'noopener';
+          viewLink.textContent = 'View';
+          actCell.appendChild(viewLink);
+          var saveBtn = document.createElement('button');
+          saveBtn.type = 'button';
+          saveBtn.className = 'btn btn-primary btn-sm btn-save-blog-cms';
+          saveBtn.setAttribute('data-id', String(p.id));
+          saveBtn.textContent = 'Save';
+          saveBtn.style.marginLeft = '0.5rem';
+          actCell.appendChild(saveBtn);
+          var delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'btn btn-outline btn-sm btn-delete-blog-cms';
+          delBtn.setAttribute('data-id', String(p.id));
+          delBtn.textContent = 'Delete';
+          delBtn.style.marginLeft = '0.25rem';
+          actCell.appendChild(delBtn);
+          tr.appendChild(actCell);
+          tbody.appendChild(tr);
+        });
+      });
+  }
+
   checkAdmin().then(function (user) {
     if (!user) return;
     loadDocuments();
@@ -354,6 +499,8 @@
     loadIdeas();
     loadCompanies();
     loadTestimonials();
+    loadDocs();
+    loadBlogPosts();
   });
 
   document.getElementById('form-add-document').addEventListener('submit', function (e) {
@@ -523,6 +670,134 @@
         .catch(function (err) { showAdminMessage(err.message || 'Failed', true); });
     });
   }
+
+  document.getElementById('form-add-doc').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var form = e.target;
+    var title = form.title.value.trim();
+    var slug = form.slug.value.trim() || undefined;
+    var body = form.body.value;
+    var sort_order = parseInt(form.sort_order.value, 10) || 0;
+    if (!title) { showAdminMessage('Title is required.', true); return; }
+    fetch('/api/admin/docs', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: title, slug: slug, body: body, sort_order: sort_order }),
+    })
+      .then(function (r) {
+        if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'Failed'); });
+        return r.json();
+      })
+      .then(function () {
+        form.reset();
+        form.sort_order.value = 0;
+        loadDocs();
+        showAdminMessage('Doc added.', false);
+      })
+      .catch(function (err) { showAdminMessage(err.message || 'Failed', true); });
+  });
+
+  document.getElementById('form-add-blog').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var form = e.target;
+    var title = form.title.value.trim();
+    var slug = form.slug.value.trim() || undefined;
+    var author_name = form.author_name.value.trim();
+    var excerpt = form.excerpt.value.trim() || null;
+    var body = form.body.value;
+    if (!title) { showAdminMessage('Title is required.', true); return; }
+    if (!author_name) { showAdminMessage('Author is required.', true); return; }
+    fetch('/api/admin/blog', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: title, slug: slug, excerpt: excerpt, body: body, author_name: author_name }),
+    })
+      .then(function (r) {
+        if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'Failed'); });
+        return r.json();
+      })
+      .then(function () {
+        form.reset();
+        loadBlogPosts();
+        showAdminMessage('Blog post added.', false);
+      })
+      .catch(function (err) { showAdminMessage(err.message || 'Failed', true); });
+  });
+
+  document.getElementById('tbody-docs-cms').addEventListener('click', function (e) {
+    if (e.target.classList.contains('btn-save-doc-cms')) {
+      var id = e.target.getAttribute('data-id');
+      var row = e.target.closest('tr');
+      var title = row.querySelector('.cms-doc-title').value.trim();
+      var slug = row.querySelector('.cms-doc-slug').value.trim();
+      var sort_order = parseInt(row.querySelector('.cms-doc-order').value, 10) || 0;
+      var body = row.querySelector('.cms-doc-body').value;
+      fetch('/api/admin/docs/' + id, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title, slug: slug, sort_order: sort_order, body: body }),
+      })
+        .then(function (r) {
+          if (r.ok) {
+            e.target.textContent = 'Saved';
+            setTimeout(function () { e.target.textContent = 'Save'; }, 1500);
+            showAdminMessage('Doc updated.', false);
+          } else return r.json().then(function (d) { throw new Error(d.error || 'Update failed'); });
+        })
+        .catch(function (err) { showAdminMessage(err.message || 'Update failed', true); });
+      return;
+    }
+    if (e.target.classList.contains('btn-delete-doc-cms')) {
+      var id = e.target.getAttribute('data-id');
+      if (!confirm('Delete this doc?')) return;
+      fetch('/api/admin/docs/' + id, { method: 'DELETE', credentials: 'include' })
+        .then(function (r) {
+          if (r.status === 204) { loadDocs(); showAdminMessage('Doc deleted.', false); }
+          else showAdminMessage('Delete failed', true);
+        })
+        .catch(function () { showAdminMessage('Delete failed', true); });
+    }
+  });
+
+  document.getElementById('tbody-blog-cms').addEventListener('click', function (e) {
+    if (e.target.classList.contains('btn-save-blog-cms')) {
+      var id = e.target.getAttribute('data-id');
+      var row = e.target.closest('tr');
+      var title = row.querySelector('.cms-blog-title').value.trim();
+      var slug = row.querySelector('.cms-blog-slug').value.trim();
+      var author_name = row.querySelector('.cms-blog-author').value.trim();
+      var published_at = row.querySelector('.cms-blog-published').value.trim() || undefined;
+      var body = row.querySelector('.cms-blog-body').value;
+      fetch('/api/admin/blog/' + id, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title, slug: slug, author_name: author_name, published_at: published_at || undefined, body: body }),
+      })
+        .then(function (r) {
+          if (r.ok) {
+            e.target.textContent = 'Saved';
+            setTimeout(function () { e.target.textContent = 'Save'; }, 1500);
+            showAdminMessage('Post updated.', false);
+          } else return r.json().then(function (d) { throw new Error(d.error || 'Update failed'); });
+        })
+        .catch(function (err) { showAdminMessage(err.message || 'Update failed', true); });
+      return;
+    }
+    if (e.target.classList.contains('btn-delete-blog-cms')) {
+      var id = e.target.getAttribute('data-id');
+      if (!confirm('Delete this post?')) return;
+      fetch('/api/admin/blog/' + id, { method: 'DELETE', credentials: 'include' })
+        .then(function (r) {
+          if (r.status === 204) { loadBlogPosts(); showAdminMessage('Post deleted.', false); }
+          else showAdminMessage('Delete failed', true);
+        })
+        .catch(function () { showAdminMessage('Delete failed', true); });
+    }
+  });
 
   var tbodyCompanies = document.getElementById('tbody-companies');
   if (tbodyCompanies) {

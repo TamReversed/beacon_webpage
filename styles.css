@@ -2376,6 +2376,18 @@ body.inner-page .nav {
   margin-left: 0.5rem;
 }
 
+/* CMS prose (markdown-rendered doc/blog body) */
+.prose { font-size: 1.0625rem; line-height: 1.7; }
+.prose h1 { font-size: var(--text-2xl); margin: 1.5rem 0 0.75rem; }
+.prose h2 { font-size: var(--text-xl); margin: 1.25rem 0 0.5rem; }
+.prose h3 { font-size: var(--text-lg); margin: 1rem 0 0.5rem; }
+.prose p { margin: 0.75rem 0; }
+.prose ul, .prose ol { margin: 0.75rem 0; padding-left: 1.5rem; }
+.prose code { font-family: var(--font-mono); font-size: 0.9em; padding: 0.15em 0.35em; border-radius: var(--radius-sm); background: var(--color-gray-100); }
+.prose pre { margin: 1rem 0; padding: 1rem; overflow-x: auto; border-radius: var(--radius-md); background: var(--color-gray-100); }
+.prose pre code { padding: 0; background: none; }
+.prose a { color: var(--color-accent); text-decoration: underline; }
+
 /* --------------------------------------------------------------------------
    Reduced motion
    -------------------------------------------------------------------------- */

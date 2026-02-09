@@ -1,5 +1,6 @@
 node_modules/
 beacon.db
+arguspage.db
 .env
 *.log
 uploads/
