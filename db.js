@@ -142,6 +142,7 @@ function seedSiteContent() {
       'Head of Customer Success, Voltera',
       2
     );
+  }
   const footerLinkCount = db.prepare('SELECT COUNT(*) as n FROM footer_links').get();
   if (footerLinkCount.n === 0) {
     const insertFooterLink = db.prepare(
@@ -165,7 +166,6 @@ function seedSiteContent() {
     // Status column
     insertFooterLink.run('Status', 'ArgusPage Status', 'https://status.arguspage.example', 0, 0);
     insertFooterLink.run('Status', 'We eat our own dogfood', '#', 1, 1);
-  }
   }
 }
 seedSiteContent();
