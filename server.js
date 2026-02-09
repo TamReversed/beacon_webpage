@@ -367,7 +367,6 @@ app.post('/api/documents', requireLogin, requireAdmin, (req, res, next) => {
 });
 
 app.patch('/api/documents/:id', requireLogin, requireAdmin, (req, res) => {
-  const id = Number(req.params.id);
   const doc = getDocumentById(id);
   if (!doc) return res.status(404).json({ error: 'Document not found' });
   const { title, description, published } = req.body || {};
@@ -381,7 +380,6 @@ app.patch('/api/documents/:id', requireLogin, requireAdmin, (req, res) => {
 });
 
 app.delete('/api/documents/:id', requireLogin, requireAdmin, (req, res) => {
-  const id = Number(req.params.id);
   const doc = getDocumentById(id);
   if (!doc) return res.status(404).json({ error: 'Document not found' });
   const rawPath = path.join(UPLOADS_DIR, doc.file_name);
@@ -420,7 +418,6 @@ app.get('/api/admin/users', requireLogin, requireAdmin, (req, res) => {
 const ALLOWED_ROLES = ['user', 'admin'];
 const ALLOWED_PLANS = ['free', 'pro'];
 app.patch('/api/admin/users/:id', requireLogin, requireAdmin, (req, res) => {
-  const id = Number(req.params.id);
   const user = getUserById(id);
   if (!user) return res.status(404).json({ error: 'User not found' });
   const { role, plan } = req.body || {};
@@ -468,7 +465,6 @@ app.get('/api/ideas', requireLogin, (req, res) => {
 
 const ALLOWED_IDEA_STATUSES = ['pending', 'approved', 'rejected'];
 app.patch('/api/ideas/:id', requireLogin, requireAdmin, (req, res) => {
-  const id = Number(req.params.id);
   const idea = getIdeaById(id);
   if (!idea) return res.status(404).json({ error: 'Idea not found' });
   const { status, admin_notes } = req.body || {};
@@ -528,7 +524,6 @@ app.post('/api/admin/companies', requireLogin, requireAdmin, (req, res) => {
 });
 
 app.put('/api/admin/companies/:id', requireLogin, requireAdmin, (req, res) => {
-  const id = Number(req.params.id);
   if (!getCompanyById(id)) return res.status(404).json({ error: 'Company not found' });
   const { name, logo_url, sort_order } = req.body || {};
   const fields = {};
@@ -541,7 +536,6 @@ app.put('/api/admin/companies/:id', requireLogin, requireAdmin, (req, res) => {
 });
 
 app.delete('/api/admin/companies/:id', requireLogin, requireAdmin, (req, res) => {
-  const id = Number(req.params.id);
   if (!getCompanyById(id)) return res.status(404).json({ error: 'Company not found' });
   deleteCompany(id);
   res.status(204).end();
@@ -578,7 +572,6 @@ app.post('/api/admin/testimonials', requireLogin, requireAdmin, (req, res) => {
 });
 
 app.put('/api/admin/testimonials/:id', requireLogin, requireAdmin, (req, res) => {
-  const id = Number(req.params.id);
   if (!getTestimonialById(id)) return res.status(404).json({ error: 'Testimonial not found' });
   const { quote, author_name, author_title, avatar_url, sort_order, visible } = req.body || {};
   const fields = {};
@@ -594,7 +587,6 @@ app.put('/api/admin/testimonials/:id', requireLogin, requireAdmin, (req, res) =>
 });
 
 app.patch('/api/admin/testimonials/:id', requireLogin, requireAdmin, (req, res) => {
-  const id = Number(req.params.id);
   const row = getTestimonialById(id);
   if (!row) return res.status(404).json({ error: 'Testimonial not found' });
   const { visible } = req.body || {};
@@ -605,7 +597,6 @@ app.patch('/api/admin/testimonials/:id', requireLogin, requireAdmin, (req, res) 
 });
 
 app.delete('/api/admin/testimonials/:id', requireLogin, requireAdmin, (req, res) => {
-  const id = Number(req.params.id);
   if (!getTestimonialById(id)) return res.status(404).json({ error: 'Testimonial not found' });
   deleteTestimonial(id);
   res.status(204).end();
@@ -642,7 +633,6 @@ app.post('/api/admin/docs', requireLogin, requireAdmin, (req, res) => {
 });
 
 app.patch('/api/admin/docs/:id', requireLogin, requireAdmin, (req, res) => {
-  const id = Number(req.params.id);
   if (!getDocById(id)) return res.status(404).json({ error: 'Doc not found' });
   const { title, slug, body, sort_order } = req.body || {};
   const fields = {};
@@ -662,7 +652,6 @@ app.patch('/api/admin/docs/:id', requireLogin, requireAdmin, (req, res) => {
 });
 
 app.delete('/api/admin/docs/:id', requireLogin, requireAdmin, (req, res) => {
-  const id = Number(req.params.id);
   if (!getDocById(id)) return res.status(404).json({ error: 'Doc not found' });
   deleteDoc(id);
   res.status(204).end();
@@ -706,7 +695,6 @@ app.post('/api/admin/blog', requireLogin, requireAdmin, (req, res) => {
 });
 
 app.patch('/api/admin/blog/:id', requireLogin, requireAdmin, (req, res) => {
-  const id = Number(req.params.id);
   if (!getBlogPostById(id)) return res.status(404).json({ error: 'Post not found' });
   const { title, slug, excerpt, body, author_name, published_at } = req.body || {};
   const fields = {};
@@ -728,7 +716,6 @@ app.patch('/api/admin/blog/:id', requireLogin, requireAdmin, (req, res) => {
 });
 
 app.delete('/api/admin/blog/:id', requireLogin, requireAdmin, (req, res) => {
-  const id = Number(req.params.id);
   try {
     const ok = deleteBlogPost(id);
     if (!ok) return res.status(404).json({ error: 'Post not found' });
@@ -804,7 +791,6 @@ app.delete('/api/admin/footer-links/:id', requireLogin, requireAdmin, (req, res)
   }
 });
 
-  const id = Number(req.params.id);
 
 // Dynamic doc and blog post pages (must be before catch-all)
 function escapeHtml(s) {
