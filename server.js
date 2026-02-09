@@ -728,7 +728,16 @@ app.patch('/api/admin/blog/:id', requireLogin, requireAdmin, (req, res) => {
 });
 
 app.delete('/api/admin/blog/:id', requireLogin, requireAdmin, (req, res) => {
-
+  const id = Number(req.params.id);
+  try {
+    const ok = deleteBlogPost(id);
+    if (!ok) return res.status(404).json({ error: 'Post not found' });
+    res.status(204).send();
+  } catch (err) {
+    console.error('Delete blog post:', err);
+    res.status(500).json({ error: 'Delete failed' });
+  }
+});
 // ========== Footer Links API ==========
 app.get('/api/footer-links', (req, res) => {
   try {
