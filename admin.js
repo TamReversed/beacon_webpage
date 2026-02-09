@@ -26,6 +26,12 @@
     while (el.firstChild) el.removeChild(el.firstChild);
   }
 
+
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
   function td(text) {
     var cell = document.createElement('td');
     cell.textContent = text == null ? '' : String(text);
