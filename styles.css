@@ -551,6 +551,13 @@ h6 { font-size: var(--text-lg); font-weight: 600; }
   border-radius: var(--radius-sm);
 }
 
+/* Desktop: nav-panel is a horizontal flex (links + actions in one row) */
+.nav-panel {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
 .hamburger {
   display: none;
   flex-direction: column;
