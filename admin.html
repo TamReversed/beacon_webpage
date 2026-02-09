@@ -51,24 +51,29 @@
         </div>
     </header>
 
-    <div class="page-content" id="admin-content" style="display: none;">
-        <div class="container">
-            <div class="admin-layout">
-                <nav class="admin-nav" aria-label="Admin sections">
-                    <ul>
-                        <li><a href="#section-documents">Documents</a></li>
-                        <li><a href="#section-users">Users</a></li>
-                        <li><a href="#section-ideas">Ideas</a></li>
-                        <li><a href="#section-companies">Companies</a></li>
-                        <li><a href="#section-testimonials">Testimonials</a></li>
-                        <li><a href="#section-docs-cms">Docs</a></li>
-                        <li><a href="#section-blog-cms">Blog</a></li>
-                    </ul>
-                </nav>
-                <div class="admin-main">
-                    <section class="admin-section" id="section-documents">
+    <div class="page-content page-content--admin" id="admin-content" style="display: none;">
+        <div class="admin-layout">
+            <aside class="admin-slider" aria-label="Edit sections">
+                <div class="admin-slider-inner">
+                    <p class="admin-slider-label">Edit</p>
+                    <nav class="admin-slider-nav" aria-label="Admin sections">
+                        <ul>
+                            <li><a href="#section-documents" class="admin-slider-link is-active" data-panel="section-documents">Documents</a></li>
+                            <li><a href="#section-users" class="admin-slider-link" data-panel="section-users">Users</a></li>
+                            <li><a href="#section-ideas" class="admin-slider-link" data-panel="section-ideas">Ideas</a></li>
+                            <li><a href="#section-companies" class="admin-slider-link" data-panel="section-companies">Companies</a></li>
+                            <li><a href="#section-testimonials" class="admin-slider-link" data-panel="section-testimonials">Testimonials</a></li>
+                            <li><a href="#section-docs-cms" class="admin-slider-link" data-panel="section-docs-cms">Docs</a></li>
+                            <li><a href="#section-blog-cms" class="admin-slider-link" data-panel="section-blog-cms">Blog</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+            <main class="admin-pane" id="admin-pane" role="main">
+                <div class="admin-panels">
+                    <section class="admin-panel" id="section-documents" aria-labelledby="panel-title-documents">
                         <div class="admin-card">
-                            <h2 class="admin-card-title">Documents</h2>
+                            <h2 class="admin-card-title" id="panel-title-documents">Documents</h2>
                             <form id="form-add-document" class="admin-form admin-form-inline">
                                 <div class="admin-form-grid">
                                     <label class="admin-field">Title <input type="text" name="title" placeholder="Document title" required /></label>
@@ -86,9 +91,9 @@
                         </div>
                     </section>
 
-                    <section class="admin-section" id="section-users">
+                    <section class="admin-panel" id="section-users" aria-labelledby="panel-title-users" hidden>
                         <div class="admin-card">
-                            <h2 class="admin-card-title">Users</h2>
+                            <h2 class="admin-card-title" id="panel-title-users">Users</h2>
                             <div class="table-wrap">
                                 <table class="admin-table" id="table-users">
                                     <thead><tr><th>Email</th><th>Name</th><th>Role</th><th>Plan</th><th>Created</th><th></th></tr></thead>
@@ -98,9 +103,9 @@
                         </div>
                     </section>
 
-                    <section class="admin-section" id="section-ideas">
+                    <section class="admin-panel" id="section-ideas" aria-labelledby="panel-title-ideas" hidden>
                         <div class="admin-card">
-                            <h2 class="admin-card-title">Ideas</h2>
+                            <h2 class="admin-card-title" id="panel-title-ideas">Ideas</h2>
                             <div class="table-wrap">
                                 <table class="admin-table" id="table-ideas">
                                     <thead><tr><th>Title</th><th>Author</th><th>Status</th><th>Admin notes</th><th>Created</th><th></th></tr></thead>
@@ -110,9 +115,9 @@
                         </div>
                     </section>
 
-                    <section class="admin-section" id="section-companies">
+                    <section class="admin-panel" id="section-companies" aria-labelledby="panel-title-companies" hidden>
                         <div class="admin-card">
-                            <h2 class="admin-card-title">Company logos</h2>
+                            <h2 class="admin-card-title" id="panel-title-companies">Company logos</h2>
                             <p class="admin-card-desc">Homepage marquee. Name and optional logo URL.</p>
                             <form id="form-add-company" class="admin-form admin-form-inline">
                                 <div class="admin-form-grid">
@@ -131,9 +136,9 @@
                         </div>
                     </section>
 
-                    <section class="admin-section" id="section-testimonials">
+                    <section class="admin-panel" id="section-testimonials" aria-labelledby="panel-title-testimonials" hidden>
                         <div class="admin-card">
-                            <h2 class="admin-card-title">Testimonials</h2>
+                            <h2 class="admin-card-title" id="panel-title-testimonials">Testimonials</h2>
                             <p class="admin-card-desc">Homepage reviews.</p>
                             <form id="form-add-testimonial" class="admin-form admin-form-inline">
                                 <div class="admin-form-grid admin-form-grid--wide">
@@ -154,9 +159,9 @@
                         </div>
                     </section>
 
-                    <section class="admin-section" id="section-docs-cms">
+                    <section class="admin-panel" id="section-docs-cms" aria-labelledby="panel-title-docs-cms" hidden>
                         <div class="admin-card">
-                            <h2 class="admin-card-title">Docs (CMS)</h2>
+                            <h2 class="admin-card-title" id="panel-title-docs-cms">Docs (CMS)</h2>
                             <p class="admin-note">Documentation articles. Markdown body. Slug → /docs/<strong>slug</strong>.</p>
                             <form id="form-add-doc" class="admin-form admin-form-inline">
                                 <div class="admin-form-grid admin-form-grid--wide">
@@ -176,9 +181,9 @@
                         </div>
                     </section>
 
-                    <section class="admin-section" id="section-blog-cms">
+                    <section class="admin-panel" id="section-blog-cms" aria-labelledby="panel-title-blog-cms" hidden>
                         <div class="admin-card">
-                            <h2 class="admin-card-title">Blog (CMS)</h2>
+                            <h2 class="admin-card-title" id="panel-title-blog-cms">Blog (CMS)</h2>
                             <p class="admin-note">Blog posts. Markdown body. Slug → /blog/<strong>slug</strong>.</p>
                             <form id="form-add-blog" class="admin-form admin-form-inline">
                                 <div class="admin-form-grid admin-form-grid--wide">
@@ -199,10 +204,10 @@
                         </div>
                     </section>
                 </div>
-            </div>
-            <div class="admin-footer-actions">
-                <a href="/dashboard" class="btn btn-outline">Back to Dashboard</a>
-            </div>
+                <div class="admin-pane-footer">
+                    <a href="/dashboard" class="btn btn-outline">← Back to Dashboard</a>
+                </div>
+            </main>
         </div>
     </div>
 

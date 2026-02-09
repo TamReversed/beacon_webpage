@@ -517,6 +517,47 @@
       });
   }
 
+  var ADMIN_PANELS = ['section-documents', 'section-users', 'section-ideas', 'section-companies', 'section-testimonials', 'section-docs-cms', 'section-blog-cms'];
+
+  function getActivePanelId() {
+    var hash = (window.location.hash || '').replace(/^#/, '');
+    return ADMIN_PANELS.indexOf(hash) !== -1 ? hash : ADMIN_PANELS[0];
+  }
+
+  function showAdminPanel(panelId) {
+    var pane = document.getElementById('admin-pane');
+    if (!pane) return;
+    ADMIN_PANELS.forEach(function (id) {
+      var panel = document.getElementById(id);
+      var link = document.querySelector('.admin-slider-link[data-panel="' + id + '"]');
+      if (panel) {
+        panel.hidden = id !== panelId;
+        if (id === panelId) panel.removeAttribute('hidden');
+        else panel.setAttribute('hidden', '');
+      }
+      if (link) link.classList.toggle('is-active', id === panelId);
+    });
+    if (panelId && window.location.hash !== '#' + panelId) {
+      window.location.replace('#' + panelId);
+    }
+  }
+
+  function initAdminPanels() {
+    showAdminPanel(getActivePanelId());
+    window.addEventListener('hashchange', function () {
+      showAdminPanel(getActivePanelId());
+    });
+    document.querySelectorAll('.admin-slider-link').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        var panelId = link.getAttribute('data-panel');
+        if (panelId) {
+          e.preventDefault();
+          showAdminPanel(panelId);
+        }
+      });
+    });
+  }
+
   checkAdmin().then(function (user) {
     if (!user) return;
     loadDocuments();
@@ -526,6 +567,7 @@
     loadTestimonials();
     loadDocs();
     loadBlogPosts();
+    initAdminPanels();
   });
 
   document.getElementById('form-add-document').addEventListener('submit', function (e) {
