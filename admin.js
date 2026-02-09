@@ -62,18 +62,51 @@
         clearEl(tbody);
         (data.documents || []).forEach(function (doc) {
           var tr = document.createElement('tr');
+          tr.setAttribute('data-doc-id', String(doc.id));
           var created = doc.created_at ? new Date(doc.created_at).toLocaleDateString() : '';
-          tr.appendChild(td(doc.title || ''));
+
+          var titleCell = document.createElement('td');
+          var titleInput = document.createElement('input');
+          titleInput.type = 'text';
+          titleInput.className = 'doc-title';
+          titleInput.value = doc.title || '';
+          titleInput.setAttribute('data-id', String(doc.id));
+          titleCell.appendChild(titleInput);
+          tr.appendChild(titleCell);
+
+          var descCell = document.createElement('td');
+          var descInput = document.createElement('input');
+          descInput.type = 'text';
+          descInput.className = 'doc-description';
+          descInput.value = (doc.description || '').toString();
+          descInput.setAttribute('data-id', String(doc.id));
+          descCell.appendChild(descInput);
+          tr.appendChild(descCell);
+
           tr.appendChild(td(doc.original_name || doc.file_name || ''));
           tr.appendChild(td(created));
-          var btnCell = document.createElement('td');
-          var btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'btn btn-outline btn-sm btn-delete-doc';
-          btn.setAttribute('data-id', String(doc.id));
-          btn.textContent = 'Delete';
-          btnCell.appendChild(btn);
-          tr.appendChild(btnCell);
+
+          var actionsCell = document.createElement('td');
+          var downloadLink = document.createElement('a');
+          downloadLink.href = '/api/documents/' + doc.id + '/download';
+          downloadLink.target = '_blank';
+          downloadLink.rel = 'noopener';
+          downloadLink.textContent = 'Download';
+          actionsCell.appendChild(downloadLink);
+          var saveBtn = document.createElement('button');
+          saveBtn.type = 'button';
+          saveBtn.className = 'btn btn-primary btn-sm btn-save-doc';
+          saveBtn.setAttribute('data-id', String(doc.id));
+          saveBtn.textContent = 'Save';
+          actionsCell.appendChild(saveBtn);
+          var delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'btn btn-outline btn-sm btn-delete-doc';
+          delBtn.setAttribute('data-id', String(doc.id));
+          delBtn.textContent = 'Delete';
+          actionsCell.appendChild(delBtn);
+          tr.appendChild(actionsCell);
+
           tbody.appendChild(tr);
         });
       });
@@ -350,17 +383,41 @@
   });
 
   document.getElementById('tbody-documents').addEventListener('click', function (e) {
-    if (!e.target.classList.contains('btn-delete-doc')) return;
-    var id = e.target.getAttribute('data-id');
-    if (!confirm('Delete this document?')) return;
-    fetch('/api/documents/' + id, { method: 'DELETE', credentials: 'include' })
-      .then(function (r) {
-        if (r.status === 204) {
-          loadDocuments();
-          showAdminMessage('Document deleted.', false);
-        } else showAdminMessage('Delete failed', true);
+    if (e.target.classList.contains('btn-save-doc')) {
+      var id = e.target.getAttribute('data-id');
+      var row = e.target.closest('tr');
+      var titleInput = row.querySelector('.doc-title');
+      var descInput = row.querySelector('.doc-description');
+      var title = titleInput ? titleInput.value.trim() : '';
+      var description = descInput ? descInput.value.trim() : '';
+      fetch('/api/documents/' + id, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title || undefined, description: description || undefined }),
       })
-      .catch(function () { showAdminMessage('Delete failed', true); });
+        .then(function (r) {
+          if (r.ok) {
+            e.target.textContent = 'Saved';
+            setTimeout(function () { e.target.textContent = 'Save'; }, 1500);
+            showAdminMessage('Document updated.', false);
+          } else return r.json().then(function (d) { throw new Error(d.error || 'Update failed'); });
+        })
+        .catch(function (err) { showAdminMessage(err.message || 'Update failed', true); });
+      return;
+    }
+    if (e.target.classList.contains('btn-delete-doc')) {
+      var id = e.target.getAttribute('data-id');
+      if (!confirm('Delete this document?')) return;
+      fetch('/api/documents/' + id, { method: 'DELETE', credentials: 'include' })
+        .then(function (r) {
+          if (r.status === 204) {
+            loadDocuments();
+            showAdminMessage('Document deleted.', false);
+          } else showAdminMessage('Delete failed', true);
+        })
+        .catch(function () { showAdminMessage('Delete failed', true); });
+    }
   });
 
   document.getElementById('tbody-users').addEventListener('click', function (e) {

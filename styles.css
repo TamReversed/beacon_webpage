@@ -2350,6 +2350,32 @@ body.inner-page .nav {
   width: 100%;
 }
 
+.admin-table .doc-title,
+.admin-table .doc-description {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  max-width: 200px;
+  width: 100%;
+}
+
+.admin-table .doc-title:focus,
+.admin-table .doc-description:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-muted);
+}
+
+.admin-table td a + .btn {
+  margin-left: 0.5rem;
+}
+
+.admin-table .btn-save-doc + .btn-delete-doc {
+  margin-left: 0.5rem;
+}
+
 /* --------------------------------------------------------------------------
    Reduced motion
    -------------------------------------------------------------------------- */

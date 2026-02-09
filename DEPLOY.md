@@ -31,7 +31,15 @@ Open **http://localhost:3000** in your browser (do not open the HTML files direc
 4. **Before the first deploy (or to fix crashes):** open your service → **Variables** tab and add:
    - `SESSION_SECRET` = run `openssl rand -hex 32` locally and paste the result (required in production).
    - `NODE_ENV` = `production` (optional; Railway often sets this automatically).
-5. Trigger a redeploy so the new variables are picked up. The SQLite file will live in the container filesystem. For persistence across deploys, add a **Volume** and set `DATABASE_PATH` to a path inside that volume (e.g. `/data/arguspage.db`), or use Railway Postgres and swap the app to use Postgres instead of SQLite (code change).
+5. Trigger a redeploy so the new variables are picked up.
+
+**Important – Data persistence (avoid losing users on every deploy):**  
+By default the SQLite file lives on the container filesystem. **Each redeploy replaces the container, so the database is recreated empty and all users (and documents, sessions, etc.) are lost.** To keep data across deploys:
+
+- **Option A – Railway Volume (recommended):** In your Railway service, add a **Volume** and set its mount path (e.g. `/data`). In **Variables**, set `DATABASE_PATH` = `/data/arguspage.db` (or another path inside the volume). The database will then persist across redeploys.
+- **Option B:** Use Railway Postgres and change the app to use Postgres instead of SQLite (requires code changes).
+
+If you see a startup log like *"Database has no users"* in production, that usually means the DB is not on a persistent volume and will be wiped on the next deploy.
 
 ## Deploy on a VPS (Ubuntu/Debian)
 
@@ -98,7 +106,7 @@ Open **http://localhost:3000** in your browser (do not open the HTML files direc
 
 ## Database
 
-- **SQLite** file: `arguspage.db` in the project root (or path from `DATABASE_PATH`). Back it up regularly on a VPS.
+- **SQLite** file: `arguspage.db` in the project root (or path from `DATABASE_PATH`). On Railway, **you must set `DATABASE_PATH` to a path on a Volume** or all users and data are lost on every redeploy. On a VPS, back the file up regularly.
 - Tables: `users` (id, email, password_hash, name, created_at), `sessions` (id, expires, data).
 - Passwords are hashed with **bcrypt** (cost 12).
 

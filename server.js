@@ -587,4 +587,16 @@ app.get('*', (req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`ArgusPage server running at http://localhost:${PORT}`);
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      const users = listUsers();
+      if (users.length === 0) {
+        console.warn(
+          'Warning: Database has no users. On Railway (and similar), the container filesystem is replaced on every deploy, ' +
+          'so without a persistent volume your database (and all users) will be lost on redeploy. ' +
+          'Add a Volume, mount it (e.g. at /data), and set DATABASE_PATH to a path inside it (e.g. /data/arguspage.db). See DEPLOY.md.'
+        );
+      }
+    } catch (e) {}
+  }
 });
