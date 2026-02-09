@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Beacon – Your users deserve to know</title>
-    <meta name="description" content="Beacon is your document library: share and manage files, let your team download what they need. Simple, secure, and easy to use.">
+    <meta name="description" content="Beacon is your status page: keep users informed during incidents, reduce support load, and build trust. Simple to set up, easy to maintain.">
 
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="Beacon – Your users deserve to know">
-    <meta property="og:description" content="Your document library: share and manage files, let your team download what they need. Simple and secure.">
+    <meta property="og:description" content="Beacon is your status page: keep users informed during incidents, reduce support load, and build trust. Simple to set up, easy to maintain.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://beacon.example">
     <meta property="og:image" content="https://beacon.example/og-image.png">
@@ -76,7 +76,7 @@
                     <span class="eyebrow">Trusted by 500+ engineering teams</span>
                     <h1>Your users deserve to know.</h1>
                     <p class="hero-subtitle">
-                        Beacon is your document library: share and manage files, let your team download what they need. Simple, secure, and easy to use.
+                        Beacon is your status page: keep users informed during incidents, reduce support load, and build trust. Simple to set up, easy to maintain.
                     </p>
 
                     <div class="hero-cta">
@@ -154,24 +154,11 @@
         <!-- Social Proof Bar -->
         <section class="social-proof">
             <div class="social-proof-label">Trusted by teams at</div>
-            <div class="logo-marquee" aria-hidden="true">
-                <div class="logo-track">
-                    <div class="company-logo">Nextra</div>
-                    <div class="company-logo">Arclight</div>
-                    <div class="company-logo">Voltera</div>
-                    <div class="company-logo">Streamline</div>
-                    <div class="company-logo">Pylon</div>
-                    <div class="company-logo">Cubist</div>
-                </div>
-                <div class="logo-track">
-                    <div class="company-logo">Nextra</div>
-                    <div class="company-logo">Arclight</div>
-                    <div class="company-logo">Voltera</div>
-                    <div class="company-logo">Streamline</div>
-                    <div class="company-logo">Pylon</div>
-                    <div class="company-logo">Cubist</div>
-                </div>
+            <div class="logo-marquee" id="logo-marquee" aria-hidden="true">
+                <div class="logo-track" id="logo-track-1"></div>
+                <div class="logo-track" id="logo-track-2"></div>
             </div>
+            <p id="logo-marquee-loading" class="social-proof-label" style="margin-top: 0.5rem;">Loading…</p>
         </section>
 
         <!-- Problem Section -->
@@ -480,39 +467,8 @@
                     <h2 class="animate-on-scroll">Teams ship with confidence</h2>
                 </div>
 
-                <div class="testimonials-grid">
-                    <div class="testimonial-card animate-on-scroll">
-                        <div class="quote-mark" aria-hidden="true">"</div>
-                        <p class="testimonial-text">
-                            Beacon cut our support tickets during outages by 80%. Our users know what's happening before they even think to reach out. It's been a game-changer.
-                        </p>
-                        <div class="testimonial-author">
-                            <div class="author-name">Sarah Chen</div>
-                            <div class="author-title">VP Engineering, Streamline</div>
-                        </div>
-                    </div>
-
-                    <div class="testimonial-card animate-on-scroll">
-                        <div class="quote-mark" aria-hidden="true">"</div>
-                        <p class="testimonial-text">
-                            We launched our status page in literally 90 seconds. The API integration with our monitoring was seamless. This is how developer tools should work.
-                        </p>
-                        <div class="testimonial-author">
-                            <div class="author-name">Marcus Rodriguez</div>
-                            <div class="author-title">CTO, Arclight</div>
-                        </div>
-                    </div>
-
-                    <div class="testimonial-card animate-on-scroll">
-                        <div class="quote-mark" aria-hidden="true">"</div>
-                        <p class="testimonial-text">
-                            Our customers love the transparency. When issues happen, they see we're on it immediately. It's turned outages from trust-breakers into trust-builders.
-                        </p>
-                        <div class="testimonial-author">
-                            <div class="author-name">Emily Nakamura</div>
-                            <div class="author-title">Head of Customer Success, Voltera</div>
-                        </div>
-                    </div>
+                <div class="testimonials-grid" id="testimonials-list">
+                    <p id="testimonials-loading">Loading…</p>
                 </div>
             </div>
         </section>
@@ -595,5 +551,84 @@
 
     <script src="/auth-nav.js"></script>
     <script src="/main.js"></script>
+    <script>
+      (function () {
+        function renderCompany(el, c) {
+          var wrap = document.createElement('div');
+          wrap.className = 'company-logo';
+          if (c.logo_url) {
+            var img = document.createElement('img');
+            img.src = c.logo_url;
+            img.alt = c.name || '';
+            img.setAttribute('loading', 'lazy');
+            wrap.appendChild(img);
+          } else {
+            wrap.textContent = c.name || '';
+          }
+          el.appendChild(wrap);
+        }
+        function renderTestimonial(container, t) {
+          var card = document.createElement('div');
+          card.className = 'testimonial-card animate-on-scroll';
+          var q = document.createElement('div');
+          q.className = 'quote-mark';
+          q.setAttribute('aria-hidden', 'true');
+          q.textContent = '"';
+          card.appendChild(q);
+          var p = document.createElement('p');
+          p.className = 'testimonial-text';
+          p.textContent = t.quote || '';
+          card.appendChild(p);
+          var author = document.createElement('div');
+          author.className = 'testimonial-author';
+          if (t.avatar_url) {
+            var av = document.createElement('img');
+            av.src = t.avatar_url;
+            av.alt = '';
+            av.className = 'testimonial-avatar';
+            av.style.cssText = 'width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;';
+            author.appendChild(av);
+          }
+          var block = document.createElement('div');
+          var nameDiv = document.createElement('div');
+          nameDiv.className = 'author-name';
+          nameDiv.textContent = t.author_name || '';
+          block.appendChild(nameDiv);
+          var titleDiv = document.createElement('div');
+          titleDiv.className = 'author-title';
+          titleDiv.textContent = t.author_title || '';
+          block.appendChild(titleDiv);
+          author.appendChild(block);
+          card.appendChild(author);
+          container.appendChild(card);
+        }
+        var track1 = document.getElementById('logo-track-1');
+        var track2 = document.getElementById('logo-track-2');
+        var logoLoading = document.getElementById('logo-marquee-loading');
+        var listEl = document.getElementById('testimonials-list');
+        var testimonialsLoading = document.getElementById('testimonials-loading');
+        if (track1 && track2) {
+          fetch('/api/companies').then(function (r) { return r.json(); }).then(function (data) {
+            var companies = data.companies || [];
+            companies.forEach(function (c) {
+              renderCompany(track1, c);
+              renderCompany(track2, c);
+            });
+            if (logoLoading) logoLoading.style.display = companies.length ? 'none' : 'block';
+          }).catch(function () {
+            if (logoLoading) logoLoading.textContent = '';
+          });
+        }
+        if (listEl) {
+          fetch('/api/testimonials').then(function (r) { return r.json(); }).then(function (data) {
+            if (testimonialsLoading) testimonialsLoading.remove();
+            var testimonials = data.testimonials || [];
+            testimonials.forEach(function (t) { renderTestimonial(listEl, t); });
+          }).catch(function () {
+            if (testimonialsLoading) testimonialsLoading.textContent = 'Could not load testimonials.';
+          });
+        }
+      })();
+    </script>
 </body>
 </html>

@@ -47,7 +47,57 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS idx_ideas_user_id ON ideas(user_id);
   CREATE INDEX IF NOT EXISTS idx_ideas_status ON ideas(status);
+
+  CREATE TABLE IF NOT EXISTS companies (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    logo_url TEXT,
+    sort_order INTEGER DEFAULT 0
+  );
+
+  CREATE TABLE IF NOT EXISTS testimonials (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    quote TEXT NOT NULL,
+    author_name TEXT NOT NULL,
+    author_title TEXT NOT NULL,
+    avatar_url TEXT,
+    sort_order INTEGER DEFAULT 0
+  );
 `);
+
+// Seed companies and testimonials if empty
+function seedSiteContent() {
+  const companyCount = db.prepare('SELECT COUNT(*) as n FROM companies').get();
+  if (companyCount.n === 0) {
+    const insertCompany = db.prepare('INSERT INTO companies (name, sort_order) VALUES (?, ?)');
+    ['Nextra', 'Arclight', 'Voltera', 'Streamline', 'Pylon', 'Cubist'].forEach((name, i) => insertCompany.run(name, i));
+  }
+  const testimonialCount = db.prepare('SELECT COUNT(*) as n FROM testimonials').get();
+  if (testimonialCount.n === 0) {
+    const insertTestimonial = db.prepare(
+      'INSERT INTO testimonials (quote, author_name, author_title, sort_order) VALUES (?, ?, ?, ?)'
+    );
+    insertTestimonial.run(
+      "Beacon cut our support tickets during outages by 80%. Our users know what's happening before they even think to reach out. It's been a game-changer.",
+      'Sarah Chen',
+      'VP Engineering, Streamline',
+      0
+    );
+    insertTestimonial.run(
+      "We launched our status page in literally 90 seconds. The API integration with our monitoring was seamless. This is how developer tools should work.",
+      'Marcus Rodriguez',
+      'CTO, Arclight',
+      1
+    );
+    insertTestimonial.run(
+      "Our customers love the transparency. When issues happen, they see we're on it immediately. It's turned outages from trust-breakers into trust-builders.",
+      'Emily Nakamura',
+      'Head of Customer Success, Voltera',
+      2
+    );
+  }
+}
+seedSiteContent();
 
 // Add role/plan columns if missing (e.g. existing DBs)
 try {
@@ -203,6 +253,84 @@ function deleteIdea(id) {
   return result.changes > 0;
 }
 
+// Companies (homepage logo marquee)
+function listCompanies() {
+  const stmt = db.prepare('SELECT id, name, logo_url, sort_order FROM companies ORDER BY sort_order ASC, id ASC');
+  return stmt.all();
+}
+
+function getCompanyById(id) {
+  const stmt = db.prepare('SELECT id, name, logo_url, sort_order FROM companies WHERE id = ?');
+  return stmt.get(id);
+}
+
+function createCompany(name, logo_url = null, sort_order = 0) {
+  const stmt = db.prepare('INSERT INTO companies (name, logo_url, sort_order) VALUES (?, ?, ?)');
+  const result = stmt.run(name || '', logo_url || null, sort_order);
+  return result.lastInsertRowid;
+}
+
+function updateCompany(id, fields) {
+  const row = getCompanyById(id);
+  if (!row) return false;
+  const name = fields.name !== undefined ? fields.name : row.name;
+  const logo_url = fields.logo_url !== undefined ? fields.logo_url : row.logo_url;
+  const sort_order = fields.sort_order !== undefined ? fields.sort_order : row.sort_order;
+  const stmt = db.prepare('UPDATE companies SET name = ?, logo_url = ?, sort_order = ? WHERE id = ?');
+  const result = stmt.run(name, logo_url, sort_order, id);
+  return result.changes > 0;
+}
+
+function deleteCompany(id) {
+  const stmt = db.prepare('DELETE FROM companies WHERE id = ?');
+  const result = stmt.run(id);
+  return result.changes > 0;
+}
+
+// Testimonials (homepage reviews)
+function listTestimonials() {
+  const stmt = db.prepare(
+    'SELECT id, quote, author_name, author_title, avatar_url, sort_order FROM testimonials ORDER BY sort_order ASC, id ASC'
+  );
+  return stmt.all();
+}
+
+function getTestimonialById(id) {
+  const stmt = db.prepare(
+    'SELECT id, quote, author_name, author_title, avatar_url, sort_order FROM testimonials WHERE id = ?'
+  );
+  return stmt.get(id);
+}
+
+function createTestimonial(quote, author_name, author_title, avatar_url = null, sort_order = 0) {
+  const stmt = db.prepare(
+    'INSERT INTO testimonials (quote, author_name, author_title, avatar_url, sort_order) VALUES (?, ?, ?, ?, ?)'
+  );
+  const result = stmt.run(quote || '', author_name || '', author_title || '', avatar_url || null, sort_order);
+  return result.lastInsertRowid;
+}
+
+function updateTestimonial(id, fields) {
+  const row = getTestimonialById(id);
+  if (!row) return false;
+  const quote = fields.quote !== undefined ? fields.quote : row.quote;
+  const author_name = fields.author_name !== undefined ? fields.author_name : row.author_name;
+  const author_title = fields.author_title !== undefined ? fields.author_title : row.author_title;
+  const avatar_url = fields.avatar_url !== undefined ? fields.avatar_url : row.avatar_url;
+  const sort_order = fields.sort_order !== undefined ? fields.sort_order : row.sort_order;
+  const stmt = db.prepare(
+    'UPDATE testimonials SET quote = ?, author_name = ?, author_title = ?, avatar_url = ?, sort_order = ? WHERE id = ?'
+  );
+  const result = stmt.run(quote, author_name, author_title, avatar_url, sort_order, id);
+  return result.changes > 0;
+}
+
+function deleteTestimonial(id) {
+  const stmt = db.prepare('DELETE FROM testimonials WHERE id = ?');
+  const result = stmt.run(id);
+  return result.changes > 0;
+}
+
 function SqliteStore() {
   Store.call(this);
 }
@@ -272,5 +400,15 @@ module.exports = {
   createIdea,
   updateIdea,
   deleteIdea,
+  listCompanies,
+  getCompanyById,
+  createCompany,
+  updateCompany,
+  deleteCompany,
+  listTestimonials,
+  getTestimonialById,
+  createTestimonial,
+  updateTestimonial,
+  deleteTestimonial,
   SqliteStore,
 };

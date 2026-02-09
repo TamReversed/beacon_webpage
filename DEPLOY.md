@@ -101,3 +101,24 @@ Open **http://localhost:3000** in your browser (do not open the HTML files direc
 - **SQLite** file: `beacon.db` in the project root (or path from `DATABASE_PATH`). Back it up regularly on a VPS.
 - Tables: `users` (id, email, password_hash, name, created_at), `sessions` (id, expires, data).
 - Passwords are hashed with **bcrypt** (cost 12).
+
+## Admin / first-run
+
+There is no in-app way to become an administrator. After a user has registered:
+
+1. **Make them admin:** In the project root (on the server or in a one-off run), run:
+   ```bash
+   node scripts/promote-user.js <their-email>
+   ```
+   That sets the user’s role to `admin` and plan to `pro`. They can then log in and access **/admin**.
+
+2. **On Railway:** Use a one-off run or attach to the running container and execute the script with the user’s email so the promotion is applied to the same database the app uses.
+
+## Content (Docs & Blog)
+
+The **Docs** and **Blog** pages are static HTML. To change them:
+
+1. Edit [docs.html](docs.html) and [blog.html](blog.html) (and any linked assets) in the repo.
+2. Commit and push, then redeploy so the updated files are served.
+
+There is no in-app editor for docs or blog; changes are made in the codebase and deployed.

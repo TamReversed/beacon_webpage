@@ -916,6 +916,13 @@ h6 { font-size: var(--text-lg); font-weight: 600; }
   font-weight: 700;
   color: var(--color-text-secondary);
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+.company-logo img {
+  max-height: 1.75rem;
+  width: auto;
+  object-fit: contain;
 }
 
 /* --------------------------------------------------------------------------
@@ -1472,8 +1479,12 @@ h6 { font-size: var(--text-lg); font-weight: 600; }
 
 .testimonial-author {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
+.testimonial-author .author-title {
+  margin-top: 0.25rem;
 }
 
 .author-name {

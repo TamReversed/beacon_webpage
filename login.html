@@ -60,6 +60,7 @@
             <p class="auth-trust" style="margin-top: 1rem; font-size: 0.8125rem; color: var(--color-text-muted);">
                 <a href="/privacy">Privacy Policy</a> · Secure sign-in
             </p>
+            <p id="admin-setup-hint" class="auth-trust" style="margin-top: 0.75rem; font-size: 0.75rem; display: none;" role="note">First time? Make yourself admin by running: <code>node scripts/promote-user.js your@email.com</code></p>
         </div>
     </main>
 
@@ -78,5 +79,13 @@
     <script src="/auth-nav.js"></script>
     <script src="/auth-forms.js"></script>
     <script src="/main.js"></script>
+    <script>
+      (function () {
+        var hint = document.getElementById('admin-setup-hint');
+        if (hint && (window.location.search.indexOf('setup=1') !== -1 || window.location.hostname === 'localhost')) {
+          hint.style.display = 'block';
+        }
+      })();
+    </script>
 </body>
 </html>

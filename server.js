@@ -24,6 +24,16 @@ const {
   getIdeaById,
   createIdea,
   updateIdea,
+  listCompanies,
+  getCompanyById,
+  createCompany,
+  updateCompany,
+  deleteCompany,
+  listTestimonials,
+  getTestimonialById,
+  createTestimonial,
+  updateTestimonial,
+  deleteTestimonial,
 } = require('./db');
 
 const app = express();
@@ -418,6 +428,122 @@ app.patch('/api/ideas/:id', requireLogin, requireAdmin, (req, res) => {
   });
   if (!ok) return res.status(500).json({ error: 'Update failed' });
   res.json({ idea: getIdeaById(id) });
+});
+
+// ——— Public: companies & testimonials (homepage) ———
+app.get('/api/companies', (req, res) => {
+  try {
+    const companies = listCompanies();
+    res.json({ companies });
+  } catch (err) {
+    console.error('List companies:', err);
+    res.status(500).json({ error: 'Failed to load companies' });
+  }
+});
+
+app.get('/api/testimonials', (req, res) => {
+  try {
+    const testimonials = listTestimonials();
+    res.json({ testimonials });
+  } catch (err) {
+    console.error('List testimonials:', err);
+    res.status(500).json({ error: 'Failed to load testimonials' });
+  }
+});
+
+// ——— Admin: companies ———
+app.get('/api/admin/companies', requireLogin, requireAdmin, (req, res) => {
+  try {
+    const companies = listCompanies();
+    res.json({ companies });
+  } catch (err) {
+    console.error('List companies:', err);
+    res.status(500).json({ error: 'Failed to list companies' });
+  }
+});
+
+app.post('/api/admin/companies', requireLogin, requireAdmin, (req, res) => {
+  try {
+    const { name, logo_url, sort_order } = req.body || {};
+    if (!name || !String(name).trim()) return res.status(400).json({ error: 'Name is required' });
+    const id = createCompany(String(name).trim(), logo_url ? String(logo_url).trim() || null : null, Number(sort_order) || 0);
+    res.status(201).json({ company: getCompanyById(id) });
+  } catch (err) {
+    console.error('Create company:', err);
+    res.status(500).json({ error: 'Failed to create company' });
+  }
+});
+
+app.put('/api/admin/companies/:id', requireLogin, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  if (!getCompanyById(id)) return res.status(404).json({ error: 'Company not found' });
+  const { name, logo_url, sort_order } = req.body || {};
+  const fields = {};
+  if (name !== undefined) fields.name = String(name).trim();
+  if (logo_url !== undefined) fields.logo_url = logo_url ? String(logo_url).trim() || null : null;
+  if (sort_order !== undefined) fields.sort_order = Number(sort_order) || 0;
+  const ok = updateCompany(id, fields);
+  if (!ok) return res.status(500).json({ error: 'Update failed' });
+  res.json({ company: getCompanyById(id) });
+});
+
+app.delete('/api/admin/companies/:id', requireLogin, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  if (!getCompanyById(id)) return res.status(404).json({ error: 'Company not found' });
+  deleteCompany(id);
+  res.status(204).end();
+});
+
+// ——— Admin: testimonials ———
+app.get('/api/admin/testimonials', requireLogin, requireAdmin, (req, res) => {
+  try {
+    const testimonials = listTestimonials();
+    res.json({ testimonials });
+  } catch (err) {
+    console.error('List testimonials:', err);
+    res.status(500).json({ error: 'Failed to list testimonials' });
+  }
+});
+
+app.post('/api/admin/testimonials', requireLogin, requireAdmin, (req, res) => {
+  try {
+    const { quote, author_name, author_title, avatar_url, sort_order } = req.body || {};
+    if (!quote || !String(quote).trim()) return res.status(400).json({ error: 'Quote is required' });
+    if (!author_name || !String(author_name).trim()) return res.status(400).json({ error: 'Author name is required' });
+    const id = createTestimonial(
+      String(quote).trim(),
+      String(author_name).trim(),
+      author_title ? String(author_title).trim() : '',
+      avatar_url ? String(avatar_url).trim() || null : null,
+      Number(sort_order) || 0
+    );
+    res.status(201).json({ testimonial: getTestimonialById(id) });
+  } catch (err) {
+    console.error('Create testimonial:', err);
+    res.status(500).json({ error: 'Failed to create testimonial' });
+  }
+});
+
+app.put('/api/admin/testimonials/:id', requireLogin, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  if (!getTestimonialById(id)) return res.status(404).json({ error: 'Testimonial not found' });
+  const { quote, author_name, author_title, avatar_url, sort_order } = req.body || {};
+  const fields = {};
+  if (quote !== undefined) fields.quote = String(quote).trim();
+  if (author_name !== undefined) fields.author_name = String(author_name).trim();
+  if (author_title !== undefined) fields.author_title = String(author_title).trim();
+  if (avatar_url !== undefined) fields.avatar_url = avatar_url ? String(avatar_url).trim() || null : null;
+  if (sort_order !== undefined) fields.sort_order = Number(sort_order) || 0;
+  const ok = updateTestimonial(id, fields);
+  if (!ok) return res.status(500).json({ error: 'Update failed' });
+  res.json({ testimonial: getTestimonialById(id) });
+});
+
+app.delete('/api/admin/testimonials/:id', requireLogin, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  if (!getTestimonialById(id)) return res.status(404).json({ error: 'Testimonial not found' });
+  deleteTestimonial(id);
+  res.status(204).end();
 });
 
 // Catch-all: serve requested file or 404 (path traversal safe)

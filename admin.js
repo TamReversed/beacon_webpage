@@ -36,7 +36,7 @@
     return fetch('/api/me', { credentials: 'include' })
       .then(function (res) {
         if (res.status === 401) {
-          window.location.href = 'login.html?next=' + encodeURIComponent('/admin');
+          window.location.href = '/login?next=' + encodeURIComponent('/admin');
           return null;
         }
         return res.json();
@@ -180,11 +180,147 @@
       });
   }
 
+  function loadCompanies() {
+    return fetch('/api/admin/companies', { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var tbody = document.getElementById('tbody-companies');
+        if (!tbody) return;
+        clearEl(tbody);
+        (data.companies || []).forEach(function (c) {
+          var tr = document.createElement('tr');
+          tr.setAttribute('data-company-id', String(c.id));
+          var nameCell = document.createElement('td');
+          var nameInput = document.createElement('input');
+          nameInput.type = 'text';
+          nameInput.className = 'company-name-input';
+          nameInput.setAttribute('data-id', String(c.id));
+          nameInput.value = (c.name || '').toString();
+          nameInput.style.cssText = 'width:100%;padding:0.35rem;';
+          nameCell.appendChild(nameInput);
+          tr.appendChild(nameCell);
+          var logoCell = document.createElement('td');
+          var logoInput = document.createElement('input');
+          logoInput.type = 'text';
+          logoInput.className = 'company-logo-input';
+          logoInput.setAttribute('data-id', String(c.id));
+          logoInput.value = (c.logo_url || '').toString();
+          logoInput.placeholder = 'URL';
+          logoInput.style.cssText = 'width:100%;max-width:180px;padding:0.35rem;';
+          logoCell.appendChild(logoInput);
+          tr.appendChild(logoCell);
+          var orderCell = document.createElement('td');
+          var orderInput = document.createElement('input');
+          orderInput.type = 'number';
+          orderInput.className = 'company-order-input';
+          orderInput.setAttribute('data-id', String(c.id));
+          orderInput.value = c.sort_order != null ? c.sort_order : 0;
+          orderInput.style.cssText = 'width:4rem;padding:0.35rem;';
+          orderCell.appendChild(orderInput);
+          tr.appendChild(orderCell);
+          var actCell = document.createElement('td');
+          var saveBtn = document.createElement('button');
+          saveBtn.type = 'button';
+          saveBtn.className = 'btn btn-primary btn-sm btn-save-company';
+          saveBtn.setAttribute('data-id', String(c.id));
+          saveBtn.textContent = 'Save';
+          actCell.appendChild(saveBtn);
+          var delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'btn btn-outline btn-sm btn-delete-company';
+          delBtn.setAttribute('data-id', String(c.id));
+          delBtn.textContent = 'Delete';
+          delBtn.style.marginLeft = '0.25rem';
+          actCell.appendChild(delBtn);
+          tr.appendChild(actCell);
+          tbody.appendChild(tr);
+        });
+      });
+  }
+
+  function loadTestimonials() {
+    return fetch('/api/admin/testimonials', { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var tbody = document.getElementById('tbody-testimonials');
+        if (!tbody) return;
+        clearEl(tbody);
+        (data.testimonials || []).forEach(function (t) {
+          var tr = document.createElement('tr');
+          tr.setAttribute('data-testimonial-id', String(t.id));
+          var quoteCell = document.createElement('td');
+          var quoteInput = document.createElement('input');
+          quoteInput.type = 'text';
+          quoteInput.className = 'testimonial-quote-input';
+          quoteInput.setAttribute('data-id', String(t.id));
+          quoteInput.value = (t.quote || '').toString();
+          quoteInput.style.cssText = 'width:100%;max-width:280px;padding:0.35rem;';
+          quoteCell.appendChild(quoteInput);
+          tr.appendChild(quoteCell);
+          var authorCell = document.createElement('td');
+          var authorInput = document.createElement('input');
+          authorInput.type = 'text';
+          authorInput.className = 'testimonial-author-input';
+          authorInput.setAttribute('data-id', String(t.id));
+          authorInput.value = (t.author_name || '').toString();
+          authorInput.style.cssText = 'width:100%;padding:0.35rem;';
+          authorCell.appendChild(authorInput);
+          tr.appendChild(authorCell);
+          var titleCell = document.createElement('td');
+          var titleInput = document.createElement('input');
+          titleInput.type = 'text';
+          titleInput.className = 'testimonial-title-input';
+          titleInput.setAttribute('data-id', String(t.id));
+          titleInput.value = (t.author_title || '').toString();
+          titleInput.style.cssText = 'width:100%;max-width:160px;padding:0.35rem;';
+          titleCell.appendChild(titleInput);
+          tr.appendChild(titleCell);
+          var avatarCell = document.createElement('td');
+          var avatarInput = document.createElement('input');
+          avatarInput.type = 'text';
+          avatarInput.className = 'testimonial-avatar-input';
+          avatarInput.setAttribute('data-id', String(t.id));
+          avatarInput.value = (t.avatar_url || '').toString();
+          avatarInput.placeholder = 'URL';
+          avatarInput.style.cssText = 'width:100%;max-width:140px;padding:0.35rem;';
+          avatarCell.appendChild(avatarInput);
+          tr.appendChild(avatarCell);
+          var orderCell = document.createElement('td');
+          var orderInput = document.createElement('input');
+          orderInput.type = 'number';
+          orderInput.className = 'testimonial-order-input';
+          orderInput.setAttribute('data-id', String(t.id));
+          orderInput.value = t.sort_order != null ? t.sort_order : 0;
+          orderInput.style.cssText = 'width:4rem;padding:0.35rem;';
+          orderCell.appendChild(orderInput);
+          tr.appendChild(orderCell);
+          var actCell = document.createElement('td');
+          var saveBtn = document.createElement('button');
+          saveBtn.type = 'button';
+          saveBtn.className = 'btn btn-primary btn-sm btn-save-testimonial';
+          saveBtn.setAttribute('data-id', String(t.id));
+          saveBtn.textContent = 'Save';
+          actCell.appendChild(saveBtn);
+          var delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'btn btn-outline btn-sm btn-delete-testimonial';
+          delBtn.setAttribute('data-id', String(t.id));
+          delBtn.textContent = 'Delete';
+          delBtn.style.marginLeft = '0.25rem';
+          actCell.appendChild(delBtn);
+          tr.appendChild(actCell);
+          tbody.appendChild(tr);
+        });
+      });
+  }
+
   checkAdmin().then(function (user) {
     if (!user) return;
     loadDocuments();
     loadUsers();
     loadIdeas();
+    loadCompanies();
+    loadTestimonials();
   });
 
   document.getElementById('form-add-document').addEventListener('submit', function (e) {
@@ -274,4 +410,146 @@
       })
       .catch(function () { showAdminMessage('Update failed', true); });
   });
+
+  var formAddCompany = document.getElementById('form-add-company');
+  if (formAddCompany) {
+    formAddCompany.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = formAddCompany.name.value.trim();
+      var logo_url = formAddCompany.logo_url.value.trim() || null;
+      var sort_order = parseInt(formAddCompany.sort_order.value, 10) || 0;
+      fetch('/api/admin/companies', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, logo_url: logo_url, sort_order: sort_order }),
+      })
+        .then(function (r) {
+          if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'Failed'); });
+          return r.json();
+        })
+        .then(function () {
+          formAddCompany.reset();
+          formAddCompany.sort_order.value = 0;
+          loadCompanies();
+          showAdminMessage('Company added.', false);
+        })
+        .catch(function (err) { showAdminMessage(err.message || 'Failed', true); });
+    });
+  }
+
+  var formAddTestimonial = document.getElementById('form-add-testimonial');
+  if (formAddTestimonial) {
+    formAddTestimonial.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var quote = formAddTestimonial.quote.value.trim();
+      var author_name = formAddTestimonial.author_name.value.trim();
+      var author_title = formAddTestimonial.author_title.value.trim();
+      var avatar_url = formAddTestimonial.avatar_url.value.trim() || null;
+      var sort_order = parseInt(formAddTestimonial.sort_order.value, 10) || 0;
+      fetch('/api/admin/testimonials', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quote: quote, author_name: author_name, author_title: author_title, avatar_url: avatar_url, sort_order: sort_order }),
+      })
+        .then(function (r) {
+          if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'Failed'); });
+          return r.json();
+        })
+        .then(function () {
+          formAddTestimonial.reset();
+          formAddTestimonial.sort_order.value = 0;
+          loadTestimonials();
+          showAdminMessage('Testimonial added.', false);
+        })
+        .catch(function (err) { showAdminMessage(err.message || 'Failed', true); });
+    });
+  }
+
+  var tbodyCompanies = document.getElementById('tbody-companies');
+  if (tbodyCompanies) {
+    tbodyCompanies.addEventListener('click', function (e) {
+      var id = e.target.getAttribute('data-id');
+      if (!id) return;
+      if (e.target.classList.contains('btn-save-company')) {
+        var row = e.target.closest('tr');
+        var name = row.querySelector('.company-name-input').value.trim();
+        var logo_url = row.querySelector('.company-logo-input').value.trim() || null;
+        var sort_order = parseInt(row.querySelector('.company-order-input').value, 10) || 0;
+        fetch('/api/admin/companies/' + id, {
+          method: 'PUT',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, logo_url: logo_url, sort_order: sort_order }),
+        })
+          .then(function (r) {
+            if (r.ok) {
+              e.target.textContent = 'Saved';
+              setTimeout(function () { e.target.textContent = 'Save'; }, 1500);
+              showAdminMessage('Company updated.', false);
+            } else {
+              r.json().then(function (d) { showAdminMessage(d.error || 'Update failed', true); }).catch(function () { showAdminMessage('Update failed', true); });
+            }
+          })
+          .catch(function () { showAdminMessage('Update failed', true); });
+        return;
+      }
+      if (e.target.classList.contains('btn-delete-company')) {
+        if (!confirm('Delete this company?')) return;
+        fetch('/api/admin/companies/' + id, { method: 'DELETE', credentials: 'include' })
+          .then(function (r) {
+            if (r.status === 204) {
+              loadCompanies();
+              showAdminMessage('Company deleted.', false);
+            } else showAdminMessage('Delete failed', true);
+          })
+          .catch(function () { showAdminMessage('Delete failed', true); });
+      }
+    });
+  }
+
+  var tbodyTestimonials = document.getElementById('tbody-testimonials');
+  if (tbodyTestimonials) {
+    tbodyTestimonials.addEventListener('click', function (e) {
+      var id = e.target.getAttribute('data-id');
+      if (!id) return;
+      if (e.target.classList.contains('btn-save-testimonial')) {
+        var row = e.target.closest('tr');
+        var quote = row.querySelector('.testimonial-quote-input').value.trim();
+        var author_name = row.querySelector('.testimonial-author-input').value.trim();
+        var author_title = row.querySelector('.testimonial-title-input').value.trim();
+        var avatar_url = row.querySelector('.testimonial-avatar-input').value.trim() || null;
+        var sort_order = parseInt(row.querySelector('.testimonial-order-input').value, 10) || 0;
+        fetch('/api/admin/testimonials/' + id, {
+          method: 'PUT',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quote: quote, author_name: author_name, author_title: author_title, avatar_url: avatar_url, sort_order: sort_order }),
+        })
+          .then(function (r) {
+            if (r.ok) {
+              e.target.textContent = 'Saved';
+              setTimeout(function () { e.target.textContent = 'Save'; }, 1500);
+              showAdminMessage('Testimonial updated.', false);
+            } else {
+              r.json().then(function (d) { showAdminMessage(d.error || 'Update failed', true); }).catch(function () { showAdminMessage('Update failed', true); });
+            }
+          })
+          .catch(function () { showAdminMessage('Update failed', true); });
+        return;
+      }
+      if (e.target.classList.contains('btn-delete-testimonial')) {
+        if (!confirm('Delete this testimonial?')) return;
+        fetch('/api/admin/testimonials/' + id, { method: 'DELETE', credentials: 'include' })
+          .then(function (r) {
+            if (r.status === 204) {
+              loadTestimonials();
+              showAdminMessage('Testimonial deleted.', false);
+            } else showAdminMessage('Delete failed', true);
+          })
+          .catch(function () { showAdminMessage('Delete failed', true); });
+      }
+    });
+  }
 })();

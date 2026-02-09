@@ -86,6 +86,49 @@
                 </table>
             </section>
 
+            <section class="admin-section" id="section-companies">
+                <h2>Company logos (homepage marquee)</h2>
+                <form id="form-add-company" class="admin-form-inline">
+                    <label>Name <input type="text" name="name" placeholder="Company name" required /></label>
+                    <label>Logo URL (optional) <input type="text" name="logo_url" placeholder="https://..." /></label>
+                    <label>Order <input type="number" name="sort_order" value="0" style="width:4rem;" /></label>
+                    <button type="submit" class="btn btn-primary btn-sm">Add</button>
+                </form>
+                <div class="table-wrap">
+                    <table class="admin-table" id="table-companies">
+                        <thead>
+                            <tr><th>Name</th><th>Logo URL</th><th>Order</th><th></th></tr>
+                        </thead>
+                        <tbody id="tbody-companies"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="admin-section" id="section-testimonials">
+                <h2>Testimonials (homepage reviews)</h2>
+                <form id="form-add-testimonial" class="admin-form-inline" style="flex-wrap: wrap; gap: 0.5rem;">
+                    <label>Quote <input type="text" name="quote" placeholder="Review text" required style="min-width: 200px;" /></label>
+                    <label>Author name <input type="text" name="author_name" placeholder="Full name" required /></label>
+                    <label>Author title <input type="text" name="author_title" placeholder="e.g. VP Engineering, Acme" /></label>
+                    <label>Avatar URL (optional) <input type="text" name="avatar_url" placeholder="https://..." /></label>
+                    <label>Order <input type="number" name="sort_order" value="0" style="width:4rem;" /></label>
+                    <button type="submit" class="btn btn-primary btn-sm">Add</button>
+                </form>
+                <div class="table-wrap">
+                    <table class="admin-table" id="table-testimonials">
+                        <thead>
+                            <tr><th>Quote</th><th>Author</th><th>Title</th><th>Avatar URL</th><th>Order</th><th></th></tr>
+                        </thead>
+                        <tbody id="tbody-testimonials"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="admin-section">
+                <h2>Docs &amp; Blog</h2>
+                <p class="admin-note">To edit the Docs and Blog pages, edit <code>docs.html</code> and <code>blog.html</code> in your repo and redeploy. See DEPLOY.md in the project for details.</p>
+            </section>
+
             <p><a href="/dashboard" class="btn btn-outline">Back to Dashboard</a></p>
         </div>
     </div>
