@@ -41,17 +41,21 @@
     <header class="page-header">
         <div class="container">
             <h1>Document Library</h1>
-            <p>Download documents below. Have an idea for improvement? <a href="/dashboard">Submit it on your dashboard</a>.</p>
+            <p>View or download your team's documents in one place.</p>
         </div>
     </header>
 
     <div class="page-content" id="main">
-        <div class="container container--narrow">
+        <div class="container">
+            <div class="section-header library-intro">
+                <h2>Your documents</h2>
+                <p>View or download files below. Have an idea for improvement? <a href="/dashboard">Submit it on your dashboard</a>.</p>
+            </div>
             <div id="library-list" class="library-list">
-                <p id="library-status">Loading…</p>
+                <p id="library-status" class="library-status">Loading…</p>
                 <ul id="library-docs" class="library-docs"></ul>
             </div>
-            <p class="page-actions"><a href="/dashboard" class="btn btn-outline">Back to Dashboard</a></p>
+            <p class="page-actions"><a href="/dashboard" class="btn btn-outline">← Back to Dashboard</a></p>
         </div>
     </div>
 
@@ -149,12 +153,22 @@
                 desc.textContent = doc.description;
                 li.appendChild(desc);
               }
-              var a = document.createElement('a');
-              a.href = '/api/documents/' + doc.id + '/download';
-              a.setAttribute('download', doc.original_name || '');
-              a.className = 'btn btn-primary';
-              a.textContent = 'Download';
-              li.appendChild(a);
+              var actions = document.createElement('div');
+              actions.className = 'library-doc-actions';
+              var viewLink = document.createElement('a');
+              viewLink.href = '/api/documents/' + doc.id + '/view';
+              viewLink.target = '_blank';
+              viewLink.rel = 'noopener noreferrer';
+              viewLink.className = 'btn btn-primary btn-sm';
+              viewLink.textContent = 'View';
+              actions.appendChild(viewLink);
+              var downloadLink = document.createElement('a');
+              downloadLink.href = '/api/documents/' + doc.id + '/download';
+              downloadLink.setAttribute('download', doc.original_name || '');
+              downloadLink.className = 'btn btn-outline btn-sm';
+              downloadLink.textContent = 'Download';
+              actions.appendChild(downloadLink);
+              li.appendChild(actions);
               listEl.appendChild(li);
             });
           })

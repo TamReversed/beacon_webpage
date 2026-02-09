@@ -308,21 +308,34 @@ function safeDispositionFilename(name) {
   return s.slice(0, 200);
 }
 
+function sendDocumentFile(req, res, disposition) {
+  const doc = getDocumentById(Number(req.params.id));
+  if (!doc) return res.status(404).json({ error: 'Document not found' });
+  const rawPath = path.join(UPLOADS_DIR, doc.file_name);
+  const resolvedPath = path.resolve(rawPath);
+  if (!isPathUnder(UPLOADS_ROOT, resolvedPath)) return res.status(403).json({ error: 'Invalid document path' });
+  if (!fs.existsSync(resolvedPath)) return res.status(404).json({ error: 'File not found' });
+  const filename = safeDispositionFilename(doc.original_name || doc.file_name);
+  res.setHeader('Content-Disposition', `${disposition}; filename="${filename.replace(/\\/g, '\\\\')}"`);
+  if (doc.mime_type) res.setHeader('Content-Type', doc.mime_type);
+  res.sendFile(resolvedPath);
+}
+
 app.get('/api/documents/:id/download', requireLogin, (req, res) => {
   try {
-    const doc = getDocumentById(Number(req.params.id));
-    if (!doc) return res.status(404).json({ error: 'Document not found' });
-    const rawPath = path.join(UPLOADS_DIR, doc.file_name);
-    const resolvedPath = path.resolve(rawPath);
-    if (!isPathUnder(UPLOADS_ROOT, resolvedPath)) return res.status(403).json({ error: 'Invalid document path' });
-    if (!fs.existsSync(resolvedPath)) return res.status(404).json({ error: 'File not found' });
-    const filename = safeDispositionFilename(doc.original_name || doc.file_name);
-    res.setHeader('Content-Disposition', `attachment; filename="${filename.replace(/\\/g, '\\\\')}"`);
-    if (doc.mime_type) res.setHeader('Content-Type', doc.mime_type);
-    res.sendFile(resolvedPath);
+    sendDocumentFile(req, res, 'attachment');
   } catch (err) {
     console.error('Download document:', err);
     res.status(500).json({ error: 'Download failed' });
+  }
+});
+
+app.get('/api/documents/:id/view', requireLogin, (req, res) => {
+  try {
+    sendDocumentFile(req, res, 'inline');
+  } catch (err) {
+    console.error('View document:', err);
+    res.status(500).json({ error: 'Could not open document' });
   }
 });
 
