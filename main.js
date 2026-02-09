@@ -1,5 +1,5 @@
 /**
- * Beacon — Main frontend behavior
+ * ArgusPage — Main frontend behavior
  * Navbar scroll, scroll-driven background animations, scroll-triggered reveals,
  * uptime bars, interactive demo, FAQ, smooth scroll
  */

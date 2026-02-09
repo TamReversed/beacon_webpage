@@ -1,7 +1,7 @@
 {
-  "name": "beacon-webpage",
+  "name": "arguspage-webpage",
   "version": "1.0.0",
-  "description": "Beacon status page marketing site with auth",
+  "description": "ArgusPage status page marketing site with auth",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

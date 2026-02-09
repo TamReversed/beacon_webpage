@@ -10,7 +10,7 @@
     var banner = document.createElement('div');
     banner.setAttribute('role', 'alert');
     banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#0F172A;color:#F8FAFC;padding:0.75rem 1.5rem;font-size:0.9375rem;text-align:center;';
-    banner.textContent = 'Beacon must be opened through the server. Run "npm start" and open ';
+    banner.textContent = 'ArgusPage must be opened through the server. Run "npm start" and open ';
     var link = document.createElement('a');
     link.href = 'http://localhost:3000';
     link.textContent = 'http://localhost:3000';

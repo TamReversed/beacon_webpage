@@ -1,4 +1,4 @@
-# Deploying Beacon (Railway or VPS)
+# Deploying ArgusPage (Railway or VPS)
 
 The site runs as a Node.js app with **real logins**: registration, login, session cookies, and a protected dashboard.
 
@@ -21,7 +21,7 @@ Open **http://localhost:3000** in your browser (do not open the HTML files direc
 | `PORT` | Server port (default `3000`). Railway sets this automatically. |
 | `SESSION_SECRET` | **Required in production.** A long random string for signing session cookies. Generate with `openssl rand -hex 32`. |
 | `NODE_ENV` | Set to `production` in production. Enables secure cookies. |
-| `DATABASE_PATH` | Optional. Path to SQLite file (default: `beacon.db` in project root). |
+| `DATABASE_PATH` | Optional. Path to SQLite file (default: `arguspage.db` in project root). |
 
 ## Deploy on Railway
 
@@ -31,14 +31,14 @@ Open **http://localhost:3000** in your browser (do not open the HTML files direc
 4. **Before the first deploy (or to fix crashes):** open your service → **Variables** tab and add:
    - `SESSION_SECRET` = run `openssl rand -hex 32` locally and paste the result (required in production).
    - `NODE_ENV` = `production` (optional; Railway often sets this automatically).
-5. Trigger a redeploy so the new variables are picked up. The SQLite file will live in the container filesystem. For persistence across deploys, add a **Volume** and set `DATABASE_PATH` to a path inside that volume (e.g. `/data/beacon.db`), or use Railway Postgres and swap the app to use Postgres instead of SQLite (code change).
+5. Trigger a redeploy so the new variables are picked up. The SQLite file will live in the container filesystem. For persistence across deploys, add a **Volume** and set `DATABASE_PATH` to a path inside that volume (e.g. `/data/arguspage.db`), or use Railway Postgres and swap the app to use Postgres instead of SQLite (code change).
 
 ## Deploy on a VPS (Ubuntu/Debian)
 
 1. On the server, install Node 18+ (e.g. from nodejs.org or `nvm`).
 2. Clone the repo and install:
    ```bash
-   cd /var/www/beacon  # or your path
+   cd /var/www/arguspage  # or your path
    git clone <your-repo> .
    npm install
    ```
@@ -52,17 +52,17 @@ Open **http://localhost:3000** in your browser (do not open the HTML files direc
 
    **Option A – systemd**
 
-   Create `/etc/systemd/system/beacon.service`:
+   Create `/etc/systemd/system/arguspage.service`:
 
    ```ini
    [Unit]
-   Description=Beacon web app
+   Description=ArgusPage web app
    After=network.target
 
    [Service]
    Type=simple
    User=www-data
-   WorkingDirectory=/var/www/beacon
+   WorkingDirectory=/var/www/arguspage
    Environment=NODE_ENV=production
    Environment=PORT=3000
    Environment=SESSION_SECRET=your-secret-here
@@ -76,15 +76,15 @@ Open **http://localhost:3000** in your browser (do not open the HTML files direc
    Then:
    ```bash
    sudo systemctl daemon-reload
-   sudo systemctl enable beacon
-   sudo systemctl start beacon
+   sudo systemctl enable arguspage
+   sudo systemctl start arguspage
    ```
 
    **Option B – PM2**
 
    ```bash
    npm install -g pm2
-   PORT=3000 SESSION_SECRET="..." NODE_ENV=production pm2 start server.js --name beacon
+   PORT=3000 SESSION_SECRET="..." NODE_ENV=production pm2 start server.js --name arguspage
    pm2 save && pm2 startup
    ```
 
@@ -94,11 +94,11 @@ Open **http://localhost:3000** in your browser (do not open the HTML files direc
 
 - Set **SESSION_SECRET** to a long random value in production.
 - Use **HTTPS** so the `secure` cookie flag works.
-- Keep `beacon.db` (and the app directory) not world-writable; run the process as a dedicated user (e.g. `www-data`).
+- Keep `arguspage.db` (and the app directory) not world-writable; run the process as a dedicated user (e.g. `www-data`).
 
 ## Database
 
-- **SQLite** file: `beacon.db` in the project root (or path from `DATABASE_PATH`). Back it up regularly on a VPS.
+- **SQLite** file: `arguspage.db` in the project root (or path from `DATABASE_PATH`). Back it up regularly on a VPS.
 - Tables: `users` (id, email, password_hash, name, created_at), `sessions` (id, expires, data).
 - Passwords are hashed with **bcrypt** (cost 12).
 

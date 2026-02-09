@@ -118,7 +118,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: new SqliteStore(),
-    name: 'beacon.sid',
+    name: 'arguspage.sid',
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -235,7 +235,7 @@ app.post('/api/login', authLimiter, async (req, res) => {
 app.post('/api/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) return res.status(500).json({ error: 'Logout failed.' });
-    res.clearCookie('beacon.sid');
+    res.clearCookie('arguspage.sid');
     res.status(204).end();
   });
 });
@@ -586,5 +586,5 @@ app.get('*', (req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Beacon server running at http://localhost:${PORT}`);
+  console.log(`ArgusPage server running at http://localhost:${PORT}`);
 });

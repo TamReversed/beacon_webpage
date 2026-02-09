@@ -3,7 +3,7 @@ const path = require('path');
 const util = require('util');
 const Store = require('express-session').Store;
 
-const dbPath = process.env.DATABASE_PATH || path.join(__dirname, 'beacon.db');
+const dbPath = process.env.DATABASE_PATH || path.join(__dirname, 'arguspage.db');
 const db = new Database(dbPath);
 
 db.exec(`
@@ -78,7 +78,7 @@ function seedSiteContent() {
       'INSERT INTO testimonials (quote, author_name, author_title, sort_order) VALUES (?, ?, ?, ?)'
     );
     insertTestimonial.run(
-      "Beacon cut our support tickets during outages by 80%. Our users know what's happening before they even think to reach out. It's been a game-changer.",
+      "ArgusPage cut our support tickets during outages by 80%. Our users know what's happening before they even think to reach out. It's been a game-changer.",
       'Sarah Chen',
       'VP Engineering, Streamline',
       0
