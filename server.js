@@ -50,7 +50,8 @@ const {
   getFooterLinkById,
   createFooterLink,
   updateFooterLink,
-  deleteFooterLink,} = require('./db');
+  deleteFooterLink,
+} = require('./db');
 
 let markedParse = null;
 function getMarked() {
