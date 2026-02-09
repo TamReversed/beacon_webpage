@@ -59,6 +59,22 @@
         </div>
     </div>
 
+    <div id="library-viewer" class="library-viewer" role="dialog" aria-modal="true" aria-labelledby="library-viewer-title" hidden>
+        <div class="library-viewer-backdrop" id="library-viewer-backdrop"></div>
+        <div class="library-viewer-panel">
+            <div class="library-viewer-header">
+                <h2 id="library-viewer-title" class="library-viewer-title">Document</h2>
+                <div class="library-viewer-actions">
+                    <a id="library-viewer-download" class="btn btn-outline btn-sm" href="#" download style="display: none;">Download</a>
+                    <button type="button" class="btn btn-ghost btn-sm library-viewer-close" id="library-viewer-close" aria-label="Close viewer">Close</button>
+                </div>
+            </div>
+            <div class="library-viewer-body">
+                <iframe id="library-viewer-iframe" title="Document content"></iframe>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer" role="contentinfo">
         <div class="container">
             <div class="footer-grid">
@@ -155,13 +171,16 @@
               }
               var actions = document.createElement('div');
               actions.className = 'library-doc-actions';
-              var viewLink = document.createElement('a');
-              viewLink.href = '/api/documents/' + doc.id + '/view';
-              viewLink.target = '_blank';
-              viewLink.rel = 'noopener noreferrer';
-              viewLink.className = 'btn btn-primary btn-sm';
-              viewLink.textContent = 'View';
-              actions.appendChild(viewLink);
+              var viewBtn = document.createElement('button');
+              viewBtn.type = 'button';
+              viewBtn.className = 'btn btn-primary btn-sm';
+              viewBtn.textContent = 'View';
+              viewBtn.setAttribute('data-doc-id', String(doc.id));
+              viewBtn.setAttribute('data-doc-title', doc.title || doc.original_name || 'Untitled');
+              viewBtn.setAttribute('data-doc-view-url', '/api/documents/' + doc.id + '/view');
+              viewBtn.setAttribute('data-doc-download-url', '/api/documents/' + doc.id + '/download');
+              viewBtn.setAttribute('data-doc-filename', doc.original_name || '');
+              actions.appendChild(viewBtn);
               var downloadLink = document.createElement('a');
               downloadLink.href = '/api/documents/' + doc.id + '/download';
               downloadLink.setAttribute('download', doc.original_name || '');
@@ -175,6 +194,47 @@
           .catch(function () {
             statusEl.textContent = 'Could not load documents. Please try again.';
           });
+
+        var viewer = document.getElementById('library-viewer');
+        var viewerIframe = document.getElementById('library-viewer-iframe');
+        var viewerTitle = document.getElementById('library-viewer-title');
+        var viewerDownload = document.getElementById('library-viewer-download');
+        var viewerClose = document.getElementById('library-viewer-close');
+        var viewerBackdrop = document.getElementById('library-viewer-backdrop');
+
+        function openViewer(viewUrl, title, downloadUrl, filename) {
+          viewerTitle.textContent = title;
+          viewerIframe.src = viewUrl;
+          viewerDownload.href = downloadUrl;
+          viewerDownload.download = filename || '';
+          viewerDownload.style.display = downloadUrl ? 'inline-flex' : 'none';
+          viewer.hidden = false;
+          document.body.style.overflow = 'hidden';
+          viewerClose.focus();
+        }
+
+        function closeViewer() {
+          viewer.hidden = true;
+          viewerIframe.src = 'about:blank';
+          document.body.style.overflow = '';
+        }
+
+        listEl.addEventListener('click', function (e) {
+          var btn = e.target.closest('button[data-doc-id]');
+          if (!btn) return;
+          var id = btn.getAttribute('data-doc-id');
+          var title = btn.getAttribute('data-doc-title');
+          var viewUrl = btn.getAttribute('data-doc-view-url');
+          var downloadUrl = btn.getAttribute('data-doc-download-url');
+          var filename = btn.getAttribute('data-doc-filename');
+          if (viewUrl) openViewer(viewUrl, title, downloadUrl, filename);
+        });
+
+        if (viewerClose) viewerClose.addEventListener('click', closeViewer);
+        if (viewerBackdrop) viewerBackdrop.addEventListener('click', closeViewer);
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && viewer && !viewer.hidden) closeViewer();
+        });
       })();
     </script>
 </body>
